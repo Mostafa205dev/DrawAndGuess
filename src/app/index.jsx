@@ -16,14 +16,47 @@ import {
 import CreateRoomIcon from "../components/CreateRoomIcon";
 import Logo from "../components/Logo";
 import QuickPlayIcon from "../components/QuickPlayIcon";
-
+import { useUser } from "../contexts/UserContext";
 const { width, height } = Dimensions.get("window");
 
 export default function HomeScreen() {
   const router = useRouter();
   const [showAddFriend, setShowAddFriend] = useState(false);
   const [searchText, setSearchText] = useState("");
+  const { user, token } = useUser();
+  const [results, setResults] = useState([]);
 
+  const searchUsers = async (text) => {
+    setSearchText(text);
+    if (text.length === 0) return setResults([]);
+
+    const response = await fetch(
+      "https://drawandguessbackend.onrender.com/users",
+    );
+    const data = await response.json();
+
+    const filtered = data.data.filter(
+      (u) =>
+        u.name.toLowerCase().includes(text.toLowerCase()) && u._id !== user._id,
+    );
+    setResults(filtered);
+  };
+
+  const SentFriendReq = async (id) => {
+    try{
+
+      const response = await fetch(
+        `https://drawandguessbackend.onrender.com/users/friendRequest/${id}`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
+      if (!response.ok) throw new Error("Failed");
+    }catch(err){
+      console.log("cant add friend")
+    }
+  };
   return (
     <ImageBackground
       source={require("../../assets/images/background.png")}
@@ -71,36 +104,22 @@ export default function HomeScreen() {
         </View>
 
         <View style={styles.friendsList}>
-          <View style={styles.friend}>
-            <Image
-              source={require("../../assets/images/avatar1.avif")}
-              style={styles.Avatar}
-            />
-            <View>
-              <Text style={styles.joinroomText}>Mostafa </Text>
-              <Text style={styles.joinroomText}>In a game </Text>
+          {user?.friends?.map((friend) => (
+            <View style={styles.friend} key={friend._id}>
+              <Image
+                source={{
+                  uri: `https://api.dicebear.com/7.x/${friend.avatar}/png?seed=${friend.name}`,
+                }}
+                style={styles.Avatar}
+              />
+
+              <View>
+                <Text style={styles.joinroomText}>{friend.name}</Text>
+
+                <Text style={styles.joinroomText}>Online</Text>
+              </View>
             </View>
-          </View>
-          <View style={styles.friend}>
-            <Image
-              source={require("../../assets/images/avatar1.avif")}
-              style={styles.Avatar}
-            />
-            <View>
-              <Text style={styles.joinroomText}>Mostafa </Text>
-              <Text style={styles.joinroomText}>In a game </Text>
-            </View>
-          </View>
-          <View style={styles.friend}>
-            <Image
-              source={require("../../assets/images/avatar1.avif")}
-              style={styles.Avatar}
-            />
-            <View>
-              <Text style={styles.joinroomText}>Mostafa </Text>
-              <Text style={styles.joinroomText}>In a game </Text>
-            </View>
-          </View>
+          ))}
         </View>
 
         <Button title="Go to About" onPress={() => router.push("/about")} />
@@ -126,7 +145,7 @@ export default function HomeScreen() {
               placeholder="Search by username"
               placeholderTextColor="#888"
               value={searchText}
-              onChangeText={setSearchText}
+              onChangeText={searchUsers}
             />
 
             <View style={styles.resultsList}>
@@ -134,8 +153,21 @@ export default function HomeScreen() {
                 <Text style={styles.emptyText}>
                   Start typing a username to search
                 </Text>
-              ) : (
+              ) : results.length === 0 ? (
                 <Text style={styles.emptyText}>No users found</Text>
+              ) : (
+                results.map((u) => (
+                  <View key={u._id} style={styles.friend}>
+                    <Image
+                      source={{
+                        uri: `https://api.dicebear.com/7.x/${u.avatar}/png?seed=${u.name}`,
+                      }}
+                      style={styles.Avatar}
+                    />
+                    <Text style={styles.joinroomText}>{u.name}</Text>
+                    <Button title="Add" onPress={() => SentFriendReq(u._id)} />
+                  </View>
+                ))
               )}
             </View>
           </View>

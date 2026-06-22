@@ -25,7 +25,7 @@ const AVATAR_STYLES = [
 
 export default function Header() {
   const { user, token, setUser } = useUser();
-
+  const [notifVisible, setNotifVisible] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const getAvatarUrl = (style) => {
     return `https://api.dicebear.com/7.x/${style}/png?seed=${user?.name || ""}`;
@@ -49,7 +49,6 @@ export default function Header() {
           body: JSON.stringify({ avatar: style }),
         },
       );
-
       if (!res.ok) throw new Error("Failed");
     } catch (err) {
       console.log(err);
@@ -81,12 +80,15 @@ export default function Header() {
           <Ionicons name="star" size={20} color="#FBBF24" />
           <Text>{user?.coins}</Text>
         </Text>
-        <Ionicons
-          style={styles.notifications}
-          name="notifications-outline"
-          size={24}
-          color="white"
-        />
+
+        <Pressable onPress={() => setNotifVisible(true)}>
+          <Ionicons
+            style={styles.notifications}
+            name="notifications-outline"
+            size={24}
+            color="white"
+          />
+        </Pressable>
       </View>
 
       <Modal visible={modalVisible} transparent animationType="slide">
@@ -119,6 +121,50 @@ export default function Header() {
                 </TouchableOpacity>
               )}
             />
+          </View>
+        </Pressable>
+      </Modal>
+
+      <Modal visible={notifVisible} transparent animationType="slide">
+        <Pressable
+          style={styles.overlay}
+          onPress={() => setNotifVisible(false)}
+        >
+          <View style={styles.modal}>
+            <Text style={styles.modalTitle}>Friend Requests</Text>
+            {user?.friendRequests?.length === 0 ? (
+              <Text
+                style={{ textAlign: "center", color: "#888", marginTop: 20 }}
+              >
+                No friend requests
+              </Text>
+            ) : (
+              user?.friendRequests?.map((req) => (
+                <View key={req._id} style={styles.reqRow}>
+                  <Image
+                    source={{
+                      uri: `https://api.dicebear.com/7.x/${req.avatar}/png?seed=${req.name}`,
+                    }}
+                    style={styles.reqAvatar}
+                  />
+                  <Text style={styles.reqName}>{req.name}</Text>
+                  <View style={styles.reqButtons}>
+                    <Pressable
+                      style={[styles.reqBtn, { backgroundColor: "#22c55e" }]}
+                      onPress={() => console.log("accept", req._id)}
+                    >
+                      <Text style={styles.reqBtnText}>✓</Text>
+                    </Pressable>
+                    <Pressable
+                      style={[styles.reqBtn, { backgroundColor: "#ef4444" }]}
+                      onPress={() => console.log("reject", req._id)}
+                    >
+                      <Text style={styles.reqBtnText}>✕</Text>
+                    </Pressable>
+                  </View>
+                </View>
+              ))
+            )}
           </View>
         </Pressable>
       </Modal>
@@ -213,5 +259,36 @@ const styles = StyleSheet.create({
     fontSize: 10,
     marginTop: 4,
     color: "#555",
+  },
+  reqRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    marginBottom: 12,
+  },
+  reqAvatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+  },
+  reqName: {
+    flex: 1,
+    fontSize: 16,
+    color: "#333",
+  },
+  reqButtons: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  reqBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  reqBtnText: {
+    color: "white",
+    fontWeight: "bold",
   },
 });

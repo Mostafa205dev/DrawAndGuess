@@ -18,7 +18,7 @@ export function UserProvider({ children }) {
         headers: { Authorization: `Bearer ${token}` },
       }
     );
-
+    
     const data = await response.json();
     setUser(data.data);
   };
@@ -26,7 +26,6 @@ export function UserProvider({ children }) {
   useEffect(() => {
     fetchUser();
   }, []);
-
   return (
     <UserContext.Provider value={{ user,setUser, token, fetchUser }}>
       {children}
