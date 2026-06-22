@@ -28,7 +28,7 @@ export function UserProvider({ children }) {
   }, []);
 
   return (
-    <UserContext.Provider value={{ user, token, fetchUser }}>
+    <UserContext.Provider value={{ user,setUser, token, fetchUser }}>
       {children}
     </UserContext.Provider>
   );

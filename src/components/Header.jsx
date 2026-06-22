@@ -24,7 +24,7 @@ const AVATAR_STYLES = [
 ];
 
 export default function Header() {
-  const { user, token, fetchUser } = useUser();
+  const { user, token, setUser } = useUser();
 
   const [modalVisible, setModalVisible] = useState(false);
   const getAvatarUrl = (style) => {
@@ -33,6 +33,11 @@ export default function Header() {
 
   const setAvatar = async (style) => {
     try {
+      setUser((prev) => ({
+        ...prev,
+        avatar: style,
+      }));
+
       const res = await fetch(
         "https://drawandguessbackend.onrender.com/users/avatar",
         {
@@ -46,8 +51,6 @@ export default function Header() {
       );
 
       if (!res.ok) throw new Error("Failed");
-
-      await fetchUser();
     } catch (err) {
       console.log(err);
     }
@@ -103,7 +106,7 @@ export default function Header() {
                     styles.avatarOption,
                     user?.avatar === item && styles.selected,
                   ]}
-                  onPress={async() => {
+                  onPress={async () => {
                     await setAvatar(item);
                     setModalVisible(false);
                   }}

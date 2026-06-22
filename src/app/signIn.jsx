@@ -1,4 +1,6 @@
 import { useRouter } from "expo-router";
+import * as SecureStore from "expo-secure-store";
+import LottieView from "lottie-react-native";
 import { useState } from "react";
 import {
   Button,
@@ -9,7 +11,6 @@ import {
   TextInput,
   View,
 } from "react-native";
-import * as SecureStore from "expo-secure-store";
 import { useUser } from "../contexts/UserContext";
 
 const { width, height } = Dimensions.get("window");
@@ -18,17 +19,19 @@ export default function SignIn() {
   const [name, setname] = useState("");
   const [phone, setPhone] = useState("");
   const router = useRouter();
-  const { fetchUser } = useUser(); 
+  const { fetchUser } = useUser();
+  const [loading, setLoading] = useState(false);
 
   const handleSignIn = async () => {
     try {
+      setLoading(true);
       const response = await fetch(
         "https://drawandguessbackend.onrender.com/users/signIn",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name, phone }),
-        }
+        },
       );
 
       const data = await response.json();
@@ -37,9 +40,23 @@ export default function SignIn() {
       router.push("/");
     } catch (err) {
       console.error("fail to fetch", err);
+    } finally {
+      setLoading(false);
     }
   };
-
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <LottieView
+          source={require("../../assets/images/loading.json")}
+          autoPlay
+          loop
+          style={styles.loadingAnimation}
+        />
+        <Text>Signing in...</Text>
+      </View>
+    );
+  }
   return (
     <ImageBackground
       source={require("../../assets/images/background.png")}
@@ -90,5 +107,16 @@ const styles = StyleSheet.create({
     borderColor: "#ccc",
     borderRadius: 8,
     padding: 8,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "white",
+  },
+
+  loadingAnimation: {
+    width: 200,
+    height: 200,
   },
 });
