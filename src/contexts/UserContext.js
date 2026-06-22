@@ -5,9 +5,11 @@ const UserContext = createContext();
 
 export function UserProvider({ children }) {
   const [user, setUser] = useState(null);
+  const [token, setToken] = useState(null);
 
   const fetchUser = async () => {
     const token = await SecureStore.getItemAsync("token");
+    setToken(token)
     if (!token) return;
 
     const response = await fetch(
@@ -26,7 +28,7 @@ export function UserProvider({ children }) {
   }, []);
 
   return (
-    <UserContext.Provider value={{ user, fetchUser }}>
+    <UserContext.Provider value={{ user, token, fetchUser }}>
       {children}
     </UserContext.Provider>
   );

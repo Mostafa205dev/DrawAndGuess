@@ -23,12 +23,34 @@ const AVATAR_STYLES = [
   "thumbs",
 ];
 
-export default function Header({ name = "Mostafa" }) {
-  const [selectedStyle, setSelectedStyle] = useState("avataaars");
+export default function Header() {
+  const { user, token, fetchUser } = useUser();
+
   const [modalVisible, setModalVisible] = useState(false);
-  const { user } = useUser();
   const getAvatarUrl = (style) => {
-    return `https://api.dicebear.com/7.x/${style}/png?seed=${name}`;
+    return `https://api.dicebear.com/7.x/${style}/png?seed=${user?.name || ""}`;
+  };
+
+  const setAvatar = async (style) => {
+    try {
+      const res = await fetch(
+        "https://drawandguessbackend.onrender.com/users/avatar",
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ avatar: style }),
+        },
+      );
+
+      if (!res.ok) throw new Error("Failed");
+
+      await fetchUser();
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   return (
@@ -36,7 +58,10 @@ export default function Header({ name = "Mostafa" }) {
       <View style={styles.container2}>
         <TouchableOpacity onPress={() => setModalVisible(true)}>
           <Image
-            source={{ uri: getAvatarUrl(selectedStyle) }}
+            key={user?.avatar}
+            source={{
+              uri: getAvatarUrl(user?.avatar || "avataaars"),
+            }}
             style={styles.Avatar}
           />
           <View style={styles.plusBadge}>
@@ -51,7 +76,7 @@ export default function Header({ name = "Mostafa" }) {
       <View style={styles.container2}>
         <Text style={styles.score}>
           <Ionicons name="star" size={20} color="#FBBF24" />
-          <Text>{user.coins}</Text>
+          <Text>{user?.coins}</Text>
         </Text>
         <Ionicons
           style={styles.notifications}
@@ -76,10 +101,10 @@ export default function Header({ name = "Mostafa" }) {
                 <TouchableOpacity
                   style={[
                     styles.avatarOption,
-                    selectedStyle === item && styles.selected,
+                    user?.avatar === item && styles.selected,
                   ]}
-                  onPress={() => {
-                    setSelectedStyle(item);
+                  onPress={async() => {
+                    await setAvatar(item);
                     setModalVisible(false);
                   }}
                 >
