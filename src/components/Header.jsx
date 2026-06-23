@@ -55,6 +55,45 @@ export default function Header() {
     }
   };
 
+  const HandleAccept = async (id) => {
+    try {
+      setUser((prev) => ({
+        ...prev,
+        friendRequests: prev.friendRequests.filter((req) => req._id !== id),
+        friends: [
+          ...prev.friends,
+          prev.friendRequests.find((req) => req._id === id),
+        ],
+      }));
+      const response = await fetch(
+        `https://drawandguessbackend.onrender.com/users/AcceptFriendRequest/${id}`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
+      if (!response.ok) throw new Error("Failed");
+    } catch (err) {
+      console.log("cant Accept friend");
+    }
+  };
+  const HandleReject = async (id) => {
+    try {
+      setUser((prev) => ({
+        ...prev,
+        friendRequests: prev.friendRequests.filter((req) => req._id !== id),
+      }));
+      const response = await fetch(
+        `https://drawandguessbackend.onrender.com/users/DeleteFriendRequest/${id}`,
+        {
+          method: "Delete",
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
+    } catch (err) {
+      console.log("cant reject friend");
+    }
+  };
   return (
     <View style={styles.container}>
       <View style={styles.container2}>
@@ -151,13 +190,13 @@ export default function Header() {
                   <View style={styles.reqButtons}>
                     <Pressable
                       style={[styles.reqBtn, { backgroundColor: "#22c55e" }]}
-                      onPress={() => console.log("accept", req._id)}
+                      onPress={() => HandleAccept(req._id)}
                     >
                       <Text style={styles.reqBtnText}>✓</Text>
                     </Pressable>
                     <Pressable
                       style={[styles.reqBtn, { backgroundColor: "#ef4444" }]}
-                      onPress={() => console.log("reject", req._id)}
+                      onPress={() => HandleReject(req._id)}
                     >
                       <Text style={styles.reqBtnText}>✕</Text>
                     </Pressable>
