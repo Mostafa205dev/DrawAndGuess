@@ -12,7 +12,7 @@ export default function RootLayout() {
       <SafeAreaView style={styles.root}>
         {!hideHeader && <Header />}
         <Stack
-          initialRouteName="signIn"
+          initialRouteName="index"
           screenOptions={{
             headerShown: false,
           }}
@@ -20,6 +20,7 @@ export default function RootLayout() {
           <Stack.Screen name="index" />
           <Stack.Screen name="about" />
           <Stack.Screen name="signIn" />
+          <Stack.Screen name="room" />
         </Stack>
       </SafeAreaView>
     </UserProvider>

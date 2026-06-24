@@ -25,6 +25,7 @@ export default function HomeScreen() {
   const [searchText, setSearchText] = useState("");
   const { user, token } = useUser();
   const [results, setResults] = useState([]);
+  const [roomCode, setRoomCode] = useState("");
 
   const searchUsers = async (text) => {
     setSearchText(text);
@@ -43,8 +44,7 @@ export default function HomeScreen() {
   };
 
   const SentFriendReq = async (id) => {
-    try{
-
+    try {
       const response = await fetch(
         `https://drawandguessbackend.onrender.com/users/friendRequest/${id}`,
         {
@@ -53,10 +53,59 @@ export default function HomeScreen() {
         },
       );
       if (!response.ok) throw new Error("Failed");
-    }catch(err){
-      console.log("cant add friend")
+    } catch (err) {
+      console.log("cant add friend");
     }
   };
+
+  const handleCreateRoom = async () => {
+    try {
+      const response = await fetch(
+        "https://drawandguessbackend.onrender.com/rooms/createRoom",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({}),
+        },
+      );
+      const data = await response.json();
+
+      router.push({
+        pathname: "/room",
+        params: { room: JSON.stringify(data.data) },
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const handleJoinRoom = async (code) => {
+    try {
+      const response = await fetch(
+        "https://drawandguessbackend.onrender.com/rooms/joinRoom",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ code: roomCode }),
+        },
+      );
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message);
+      router.push({
+        pathname: "/room",
+        params: { room: JSON.stringify(data.data) },
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   return (
     <ImageBackground
       source={require("../../assets/images/background.png")}
@@ -82,15 +131,33 @@ export default function HomeScreen() {
             <Text style={styles.title}>Quick play</Text>
             <Text style={styles.description}>Public match</Text>
           </View>
-          <View style={styles.titleplay}>
-            <CreateRoomIcon />
-            <Text style={styles.title}>Create room</Text>
-            <Text style={styles.description}>with friends</Text>
-          </View>
+          <Pressable onPress={() => handleCreateRoom()}>
+            <View style={styles.titleplay}>
+              <CreateRoomIcon />
+              <Text style={styles.title}>Create room</Text>
+              <Text style={styles.description}>with friends</Text>
+            </View>
+          </Pressable>
         </View>
-
+        {/* <Pressable onPress={() => handleJoinRoom()}>
+          <View style={styles.joinroom}>
+            <Text style={styles.joinroomText}>Join room with code</Text>
+            <TextInput placeholder="enter code"></TextInput>
+          </View>
+        </Pressable> */}
         <View style={styles.joinroom}>
           <Text style={styles.joinroomText}>Join room with code</Text>
+          <TextInput
+            placeholder="Enter code"
+            placeholderTextColor="#888"
+            value={roomCode}
+            onChangeText={setRoomCode}
+            style={styles.codeInput}
+            autoCapitalize="characters"
+          />
+          <Pressable onPress={handleJoinRoom}>
+            <Text style={styles.joinroomText}>Join</Text>
+          </Pressable>
         </View>
 
         <View style={styles.friendsHeader}>
