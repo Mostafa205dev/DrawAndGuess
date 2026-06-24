@@ -139,24 +139,21 @@ export default function HomeScreen() {
             </View>
           </Pressable>
         </View>
-        {/* <Pressable onPress={() => handleJoinRoom()}>
-          <View style={styles.joinroom}>
-            <Text style={styles.joinroomText}>Join room with code</Text>
-            <TextInput placeholder="enter code"></TextInput>
-          </View>
-        </Pressable> */}
+
         <View style={styles.joinroom}>
-          <Text style={styles.joinroomText}>Join room with code</Text>
+          <Text style={styles.joinroomTitle}>Join Room</Text>
+
           <TextInput
-            placeholder="Enter code"
-            placeholderTextColor="#888"
+            placeholder="Enter room code"
+            placeholderTextColor="#999"
             value={roomCode}
             onChangeText={setRoomCode}
             style={styles.codeInput}
             autoCapitalize="characters"
           />
-          <Pressable onPress={handleJoinRoom}>
-            <Text style={styles.joinroomText}>Join</Text>
+
+          <Pressable style={styles.joinButton} onPress={handleJoinRoom}>
+            <Text style={styles.joinButtonText}>Join</Text>
           </Pressable>
         </View>
 
@@ -298,11 +295,40 @@ const styles = StyleSheet.create({
     gap: 5,
   },
   joinroom: {
+    width: "100%",
     backgroundColor: "#3c3344",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderWidth: 1,
-    borderRadius: 10,
+    borderRadius: 16,
+    padding: 16,
+    gap: 12,
+    alignItems: "center",
+  },
+  joinroomTitle: {
+    color: "white",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  codeInput: {
+    width: "100%",
+    backgroundColor: "#51465c",
+    color: "white",
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    textAlign: "center",
+    letterSpacing: 2,
+  },
+  joinButton: {
+    width: "100%",
+    backgroundColor: "#22c55e",
+    paddingVertical: 12,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+  joinButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
   },
   joinroomText: {
     color: "white",

@@ -2,13 +2,13 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
   Dimensions,
-  Image,
   ImageBackground,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
   View,
+  Image
 } from "react-native";
 import { io } from "socket.io-client";
 import { useUser } from "../contexts/UserContext";
@@ -53,15 +53,15 @@ export default function RoomScreen() {
       }));
     });
 
-    socket.on("playerLeft", ({ leftPlayer,room }) => {
+    socket.on("playerLeft", ({ leftPlayer, room }) => {
       if (!room) return;
       setRoom(room);
     });
 
-    socket.on("gameStarted", () => {
+    socket.on("gameStarted", (roomData) => {
       router.push({
-        pathname: "/game",
-        params: { room: JSON.stringify(roomRef.current) },
+        pathname: "/gameScreen",
+        params: { room: JSON.stringify(roomData) },
       });
     });
 
@@ -135,6 +135,7 @@ export default function RoomScreen() {
             )}
           </View>
         ))}
+
       </ScrollView>
 
       <View style={styles.buttons}>
