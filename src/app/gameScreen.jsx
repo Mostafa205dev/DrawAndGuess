@@ -12,6 +12,10 @@ export default function GameScreen() {
   const [room, setRoom] = useState(
     params.room ? JSON.parse(params.room) : null,
   );
+  const [wordChoices, setWordChoices] = useState(
+    params.words ? JSON.parse(params.words) : [],
+  );
+  const [selectedWord, setSelectedWord] = useState(null);
   const [paths, setPaths] = useState([]);
   const currentPath = useRef("");
   const selectedColorRef = useRef("black");
@@ -76,7 +80,12 @@ export default function GameScreen() {
       user: { _id: user._id, name: user.name },
     });
 
-    socket.on("roomUpdated", (updatedRoom) => setRoom(updatedRoom));
+    socket.on("roomUpdated", (updatedRoom) => {
+      console.log(updatedRoom.currentWord);
+      setRoom(updatedRoom);
+      setSelectedWord(updatedRoom.currentWord);
+    });
+
     socket.on("startPath", ({ color }) => {
       setPaths((prev) => [...prev, { d: "", color }]);
     });
@@ -95,11 +104,31 @@ export default function GameScreen() {
   return (
     <View
       style={{ flex: 1, backgroundColor: "white" }}
-      {...(isDrawer ? panResponder.panHandlers : {})}
+      {...(isDrawer && selectedWord ? panResponder.panHandlers : {})}
     >
       <Text>{isDrawer ? "You are drawing" : "Guess the word"}</Text>
 
-      {isDrawer && (
+      {/* Words choice */}
+      {isDrawer && !selectedWord && (
+        <View>
+          {wordChoices.map((word) => (
+            <Pressable
+              key={word}
+              onPress={() => {
+                socketRef.current?.emit("chooseWord", {
+                  roomCode: room.code,
+                  word,
+                });
+              }}
+            >
+              <Text>{word}</Text>
+            </Pressable>
+          ))}
+        </View>
+      )}
+
+      {/* colors button */}
+      {isDrawer && selectedWord && (
         <View
           style={{
             flexDirection: "row",
@@ -128,17 +157,19 @@ export default function GameScreen() {
         </View>
       )}
 
-      <Svg style={{ flex: 1 }}>
-        {paths.map((path, index) => (
-          <Path
-            key={index}
-            d={path.d}
-            stroke={path.color}
-            strokeWidth="5"
-            fill="none"
-          />
-        ))}
-      </Svg>
+      {(!isDrawer || selectedWord) && (
+        <Svg style={{ flex: 1 }}>
+          {paths.map((path, index) => (
+            <Path
+              key={index}
+              d={path.d}
+              stroke={path.color}
+              strokeWidth="5"
+              fill="none"
+            />
+          ))}
+        </Svg>
+      )}
     </View>
   );
 }
