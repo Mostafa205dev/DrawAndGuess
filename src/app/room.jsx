@@ -12,11 +12,11 @@ import {
 } from "react-native";
 import { io } from "socket.io-client";
 import { useUser } from "../contexts/UserContext";
-const { width } = Dimensions.get("window");
+const { height,width } = Dimensions.get("window");
 
 export default function RoomScreen() {
   const router = useRouter();
-  const { user, token } = useUser();
+  const { user, token ,fetchUser } = useUser();
   const params = useLocalSearchParams();
   const [room, setRoom] = useState(
     params.room ? JSON.parse(params.room) : null,
@@ -66,7 +66,8 @@ export default function RoomScreen() {
           words: JSON.stringify(words),
         },
       });
-    });
+    }); 
+    fetchUser();
 
     return () => {
       socket.disconnect();
@@ -159,6 +160,7 @@ const styles = StyleSheet.create({
   body: {
     flex: 1,
     width: width,
+    height: height,
   },
   header: {
     flexDirection: "row",

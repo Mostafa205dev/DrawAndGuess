@@ -38,7 +38,9 @@ export default function HomeScreen() {
 
     const filtered = data.data.filter(
       (u) =>
-        u.name.toLowerCase().includes(text.toLowerCase()) && u._id !== user._id,
+        u.name.toLowerCase().includes(text.toLowerCase()) &&
+        u._id !== user._id &&
+        !user.friends.some((f) => f._id === u._id),
     );
     setResults(filtered);
   };
