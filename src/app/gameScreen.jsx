@@ -1,6 +1,13 @@
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useRef, useState } from "react";
-import { PanResponder, Pressable, Text, View } from "react-native";
+import {
+  PanResponder,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { io } from "socket.io-client";
 import { useUser } from "../contexts/UserContext";
@@ -18,7 +25,9 @@ export default function GameScreen() {
   const [selectedWord, setSelectedWord] = useState(null);
   const [paths, setPaths] = useState([]);
   const currentPath = useRef("");
+  const [guess, setGuess] = useState("");
   const selectedColorRef = useRef("black");
+  const [message, setMessage] = useState("");
   const [selectedColor, setSelectedColor] = useState("black");
   const COLORS = [
     "black",
@@ -81,7 +90,6 @@ export default function GameScreen() {
     });
 
     socket.on("roomUpdated", (updatedRoom) => {
-      console.log(updatedRoom.currentWord);
       setRoom(updatedRoom);
       setSelectedWord(updatedRoom.currentWord);
     });
@@ -98,8 +106,33 @@ export default function GameScreen() {
       });
     });
 
+    socket.on("correctGuess", ({ user }) => {
+      setMessage(`${user.name} guessed correctly!`);
+      console.log("correctGuess");
+    });
+
+    socket.on("newRound", ({ room, words }) => {
+      setWordChoices(words);
+      setPaths([]);
+      setSelectedWord(null);
+      setMessage("");
+    });
+
     return () => socket.disconnect();
   }, []);
+
+  const handleGuess = () => {
+    socketRef.current?.emit("checkWord", {
+      roomCode: room.code,
+      guess: guess.trim(),
+      user: {
+        _id: user._id,
+        name: user.name,
+      },
+    });
+
+    setGuess("");
+  };
 
   return (
     <View
@@ -107,13 +140,17 @@ export default function GameScreen() {
       {...(isDrawer && selectedWord ? panResponder.panHandlers : {})}
     >
       <Text>{isDrawer ? "You are drawing" : "Guess the word"}</Text>
+      {message !== "" && <Text style={styles.userCorrectGuess}>{message}</Text>}
 
       {/* Words choice */}
       {isDrawer && !selectedWord && (
-        <View>
+        <View style={styles.wordsContainer}>
+          <Text style={styles.wordsTitle}>Choose a word</Text>
+
           {wordChoices.map((word) => (
             <Pressable
               key={word}
+              style={styles.wordButton}
               onPress={() => {
                 socketRef.current?.emit("chooseWord", {
                   roomCode: room.code,
@@ -121,7 +158,7 @@ export default function GameScreen() {
                 });
               }}
             >
-              <Text>{word}</Text>
+              <Text style={styles.wordButtonText}>{word}</Text>
             </Pressable>
           ))}
         </View>
@@ -129,14 +166,7 @@ export default function GameScreen() {
 
       {/* colors button */}
       {isDrawer && selectedWord && (
-        <View
-          style={{
-            flexDirection: "row",
-            gap: 8,
-            padding: 10,
-            backgroundColor: "#eee",
-          }}
-        >
+        <View style={styles.colorsButtons}>
           {COLORS.map((color) => (
             <Pressable
               key={color}
@@ -144,16 +174,33 @@ export default function GameScreen() {
                 setSelectedColor(color);
                 selectedColorRef.current = color;
               }}
-              style={{
-                width: 30,
-                height: 30,
-                borderRadius: 15,
-                backgroundColor: color,
-                borderWidth: selectedColor === color ? 3 : 1,
-                borderColor: "gray",
-              }}
+              style={[
+                styles.eachColorButton,
+                {
+                  backgroundColor: color,
+                  borderWidth: selectedColor === color ? 3 : 1,
+                  borderColor: "gray",
+                },
+              ]}
             />
           ))}
+        </View>
+      )}
+
+      {/*  entring the word */}
+      {!isDrawer && (
+        <View style={styles.guessContainer}>
+          <TextInput
+            placeholder="Type your guess..."
+            placeholderTextColor="#888"
+            value={guess}
+            onChangeText={setGuess}
+            style={styles.guessInput}
+          />
+
+          <Pressable onPress={handleGuess} style={styles.guessButton}>
+            <Text style={styles.guessButtonText}>Send</Text>
+          </Pressable>
         </View>
       )}
 
@@ -173,3 +220,91 @@ export default function GameScreen() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  guessContainer: {
+    padding: 15,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    backgroundColor: "#f3f4f6",
+    borderTopWidth: 1,
+    borderColor: "#ddd",
+  },
+
+  guessInput: {
+    flex: 1,
+    backgroundColor: "white",
+    borderRadius: 12,
+    paddingHorizontal: 15,
+    paddingVertical: 12,
+    fontSize: 16,
+    borderWidth: 1,
+    borderColor: "#ccc",
+  },
+
+  guessButton: {
+    backgroundColor: "#3b82f6",
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 12,
+  },
+
+  guessButtonText: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+
+  userCorrectGuess: {
+    textAlign: "center",
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "green",
+    marginVertical: 10,
+  },
+
+  colorsButtons: {
+    flexDirection: "row",
+    gap: 8,
+    padding: 10,
+    backgroundColor: "#eee",
+  },
+
+  eachColorButton: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+  },
+
+  wordsContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 30,
+    gap: 20,
+  },
+
+  wordsTitle: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 20,
+  },
+
+  wordButton: {
+    width: "100%",
+    backgroundColor: "#3b82f6",
+    paddingVertical: 16,
+    borderRadius: 16,
+    alignItems: "center",
+    elevation: 4,
+  },
+
+  wordButtonText: {
+    color: "#fff",
+    fontSize: 20,
+    fontWeight: "bold",
+    textTransform: "capitalize",
+  },
+});
