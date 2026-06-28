@@ -1,4 +1,3 @@
-import { useLocalSearchParams } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
   PanResponder,
@@ -11,11 +10,13 @@ import {
 import Svg, { Path } from "react-native-svg";
 import { io } from "socket.io-client";
 import { useUser } from "../contexts/UserContext";
+import { useLocalSearchParams, useRouter } from "expo-router";
 
 export default function GameScreen() {
   const { user } = useUser();
 
   const params = useLocalSearchParams();
+  const router = useRouter();
   const [room, setRoom] = useState(
     params.room ? JSON.parse(params.room) : null,
   );
@@ -116,6 +117,13 @@ export default function GameScreen() {
       setPaths([]);
       setSelectedWord(null);
       setMessage("");
+    });
+
+    socket.on("gameEnded", ({ room }) => {
+      router.push({
+        pathname: "/results",
+        params: { room: JSON.stringify(room) },
+      });
     });
 
     return () => socket.disconnect();
