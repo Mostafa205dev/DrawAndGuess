@@ -104,7 +104,7 @@ export default function RoomScreen() {
     socketRef.current?.emit("startGame", { roomCode: room.code });
   };
 
-  console.log(room.players);
+  
   return (
     <ImageBackground
       source={require("../../assets/images/background.png")}

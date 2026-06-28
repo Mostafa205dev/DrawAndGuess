@@ -1,3 +1,4 @@
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
   PanResponder,
@@ -10,7 +11,6 @@ import {
 import Svg, { Path } from "react-native-svg";
 import { io } from "socket.io-client";
 import { useUser } from "../contexts/UserContext";
-import { useLocalSearchParams, useRouter } from "expo-router";
 
 export default function GameScreen() {
   const { user } = useUser();
@@ -30,6 +30,8 @@ export default function GameScreen() {
   const selectedColorRef = useRef("black");
   const [message, setMessage] = useState("");
   const [selectedColor, setSelectedColor] = useState("black");
+  const [timeLeft, setTimeLeft] = useState(null);
+  const timerRef = useRef(null);
   const COLORS = [
     "black",
     "red",
@@ -92,6 +94,20 @@ export default function GameScreen() {
       setSelectedWord(updatedRoom.currentWord);
     });
 
+    socket.on("startTimer", ({ seconds }) => {
+      setTimeLeft(seconds);
+      clearInterval(timerRef.current);
+      timerRef.current = setInterval(() => {
+        setTimeLeft((prev) => {
+          if (prev <= 1) {
+            clearInterval(timerRef.current);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    });
+
     socket.on("startPath", ({ color }) => {
       setPaths((prev) => [...prev, { d: "", color }]);
     });
@@ -106,14 +122,18 @@ export default function GameScreen() {
 
     socket.on("correctGuess", ({ user }) => {
       setMessage(`${user.name} guessed correctly!`);
-      console.log("correctGuess");
+      setTimeLeft(null);
+      clearInterval(timerRef.current);
     });
 
     socket.on("newRound", ({ room, words }) => {
+      setRoom(room);
       setWordChoices(words);
       setPaths([]);
       setSelectedWord(null);
       setMessage("");
+      setTimeLeft(null);
+      clearInterval(timerRef.current);
     });
 
     socket.on("gameEnded", ({ room }) => {
@@ -146,6 +166,17 @@ export default function GameScreen() {
     >
       <Text>{isDrawer ? "You are drawing" : "Guess the word"}</Text>
       {message !== "" && <Text style={styles.userCorrectGuess}>{message}</Text>}
+      {timeLeft !== null && (
+        <Text
+          style={{
+            fontSize: 24,
+            fontWeight: "bold",
+            color: timeLeft <= 5 ? "red" : "black",
+          }}
+        >
+          {timeLeft}s
+        </Text>
+      )}
 
       {/* Words choice */}
       {isDrawer && !selectedWord && (
@@ -193,7 +224,7 @@ export default function GameScreen() {
       )}
 
       {/*  entring the word */}
-      {!isDrawer && (
+      {!isDrawer && selectedWord && (
         <View style={styles.guessContainer}>
           <TextInput
             placeholder="Type your guess..."
