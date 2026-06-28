@@ -85,10 +85,7 @@ export default function GameScreen() {
     const socket = io("https://drawandguessbackend.onrender.com");
     socketRef.current = socket;
 
-    socket.emit("joinRoom", {
-      roomCode: room.code,
-      user: { _id: user._id, name: user.name },
-    });
+    socket.emit("joinGame", { roomCode: room.code });
 
     socket.on("roomUpdated", (updatedRoom) => {
       setRoom(updatedRoom);

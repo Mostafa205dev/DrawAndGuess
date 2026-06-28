@@ -47,10 +47,10 @@ export default function RoomScreen() {
     });
 
     socket.on("playerJoined", (newPlayer) => {
-      setRoom((prev) => ({
-        ...prev,
-        players: [...prev.players, newPlayer],
-      }));
+      setRoom((prev) => {
+        if (prev.players.find((p) => p._id === newPlayer._id)) return prev;
+        return { ...prev, players: [...prev.players, newPlayer] };
+      });
     });
 
     socket.on("playerLeft", ({ leftPlayer, room }) => {
@@ -104,6 +104,7 @@ export default function RoomScreen() {
     socketRef.current?.emit("startGame", { roomCode: room.code });
   };
 
+  console.log(room.players);
   return (
     <ImageBackground
       source={require("../../assets/images/background.png")}
