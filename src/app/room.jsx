@@ -1,3 +1,4 @@
+import { Picker } from "@react-native-picker/picker";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -12,14 +13,18 @@ import {
 } from "react-native";
 import { io } from "socket.io-client";
 import { useUser } from "../contexts/UserContext";
-const { height,width } = Dimensions.get("window");
+const { height, width } = Dimensions.get("window");
 
 export default function RoomScreen() {
   const router = useRouter();
-  const { user, token ,fetchUser } = useUser();
+  const { user, token, fetchUser } = useUser();
   const params = useLocalSearchParams();
   const [room, setRoom] = useState(
     params.room ? JSON.parse(params.room) : null,
+  );
+  const MODES = ["normal", "firstGuessWin"];
+  const [mode, setMode] = useState(
+    params.room ? JSON.parse(params.room).mode || "normal" : "normal",
   );
   if (!room) return null;
   const socketRef = useRef(null);
@@ -66,7 +71,7 @@ export default function RoomScreen() {
           words: JSON.stringify(words),
         },
       });
-    }); 
+    });
     fetchUser();
 
     return () => {
@@ -102,10 +107,9 @@ export default function RoomScreen() {
   };
 
   const handleStart = async () => {
-    socketRef.current?.emit("startGame", { roomCode: room.code });
+    socketRef.current?.emit("startGame", { roomCode: room.code, mode });
   };
 
-  
   return (
     <ImageBackground
       source={require("../../assets/images/background.png")}
@@ -117,6 +121,19 @@ export default function RoomScreen() {
           <Text style={styles.codeLabel}>Room Code</Text>
           <Text style={styles.code}>{room.code}</Text>
         </View>
+
+        {isHost && (
+          <Picker
+            selectedValue={mode}
+            onValueChange={(value) => setMode(value)}
+            style={{ color: "white", width: 150 }}
+            dropdownIconColor="white"
+          >
+            <Picker.Item label="Normal" value="normal" />
+            <Picker.Item label="First Guess Win" value="firstGuessWin" />
+          </Picker>
+        )}
+
         <Text style={styles.playersCount}>
           {room.players.length}/{room.maxPlayers}
         </Text>
