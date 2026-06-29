@@ -1,5 +1,5 @@
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Button,
   Dimensions,
@@ -13,6 +13,7 @@ import {
   TextInput,
   View,
 } from "react-native";
+import { io } from "socket.io-client";
 import CreateRoomIcon from "../components/CreateRoomIcon";
 import Logo from "../components/Logo";
 import QuickPlayIcon from "../components/QuickPlayIcon";
@@ -23,9 +24,23 @@ export default function HomeScreen() {
   const router = useRouter();
   const [showAddFriend, setShowAddFriend] = useState(false);
   const [searchText, setSearchText] = useState("");
-  const { user, token } = useUser();
+  const { user, token, fetchUser } = useUser();
   const [results, setResults] = useState([]);
   const [roomCode, setRoomCode] = useState("");
+  const socketRef = useRef(null);
+
+  useEffect(() => {
+    const socket = io("https://drawandguessbackend.onrender.com", {
+      auth: { userId: user._id },
+    });
+    socketRef.current = socket;
+
+    socket.on("refresh", () => {
+      fetchUser();
+    });
+
+    return () => socket.disconnect();
+  }, []);
 
   const searchUsers = async (text) => {
     setSearchText(text);
@@ -55,6 +70,9 @@ export default function HomeScreen() {
         },
       );
       if (!response.ok) throw new Error("Failed");
+      socketRef.current?.emit("sendFriendRequest", {
+        id,
+      });
     } catch (err) {
       console.log("cant add friend");
     }
