@@ -1,6 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
+
 import {
+  Button,
   Dimensions,
   FlatList,
   Image,
@@ -10,7 +12,6 @@ import {
   Text,
   TouchableOpacity,
   View,
-  Button,
 } from "react-native";
 import { useUser } from "../contexts/UserContext";
 const { width } = Dimensions.get("window");
@@ -25,9 +26,10 @@ const AVATAR_STYLES = [
 ];
 
 export default function Header() {
-  const { user, token, setUser,logout } = useUser();
+  const { user, token, setUser, fetchUser, logout ,socketRef } = useUser();
   const [notifVisible, setNotifVisible] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+
   const getAvatarUrl = (style) => {
     return `https://api.dicebear.com/7.x/${style}/png?seed=${user?.name || ""}`;
   };
@@ -58,14 +60,6 @@ export default function Header() {
 
   const HandleAccept = async (id) => {
     try {
-      setUser((prev) => ({
-        ...prev,
-        friendRequests: prev.friendRequests.filter((req) => req._id !== id),
-        friends: [
-          ...prev.friends,
-          prev.friendRequests.find((req) => req._id === id),
-        ],
-      }));
       const response = await fetch(
         `https://drawandguessbackend.onrender.com/users/AcceptFriendRequest/${id}`,
         {
@@ -74,10 +68,26 @@ export default function Header() {
         },
       );
       if (!response.ok) throw new Error("Failed");
+
+      socketRef.current?.emit("acceptFriendRequest", {
+        id,
+      });
+
+      fetchUser();
     } catch (err) {
       console.log("cant Accept friend");
     }
   };
+
+  // setUser((prev) => ({
+  //   ...prev,
+  //   friendRequests: prev.friendRequests.filter((req) => req._id !== id),
+  //   friends: [
+  //     ...prev.friends,
+  //     prev.friendRequests.find((req) => req._id === id),
+  //   ],
+  // }));
+
   const HandleReject = async (id) => {
     try {
       setUser((prev) => ({
@@ -95,6 +105,7 @@ export default function Header() {
       console.log("cant reject friend");
     }
   };
+
   return (
     <View style={styles.container}>
       <View style={styles.container2}>
