@@ -1,6 +1,5 @@
 import * as SecureStore from "expo-secure-store";
 import { createContext, useContext, useEffect, useState } from "react";
-
 const UserContext = createContext();
 
 export function UserProvider({ children }) {
@@ -22,6 +21,7 @@ export function UserProvider({ children }) {
         headers: { Authorization: `Bearer ${token}` },
       },
     );
+    console.log(response.status);
 
     if (!response.ok) {
       await SecureStore.deleteItemAsync("token");
@@ -30,8 +30,14 @@ export function UserProvider({ children }) {
     }
 
     const data = await response.json();
+    console.log(data);
     setUser(data.data);
     setIsLoading(false);
+  };
+  const logout = async () => {
+    await SecureStore.deleteItemAsync("token");
+    setUser(null);
+    setToken(null);
   };
 
   useEffect(() => {
@@ -39,7 +45,7 @@ export function UserProvider({ children }) {
   }, []);
   return (
     <UserContext.Provider
-      value={{ user, setUser, token, fetchUser, isLoading }}
+      value={{ user, setUser, token, fetchUser, isLoading, logout }}
     >
       {children}
     </UserContext.Provider>

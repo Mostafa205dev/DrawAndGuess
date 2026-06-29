@@ -1,13 +1,21 @@
-import { Redirect,Stack, usePathname } from "expo-router";
-import { StyleSheet, View } from "react-native";
+import { Stack, usePathname, useRouter } from "expo-router";
 import LottieView from "lottie-react-native";
+import { useEffect } from "react";
+import { StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Header from "../components/Header";
 import { UserProvider, useUser } from "../contexts/UserContext";
 function RootLayoutNav() {
   const { user, isLoading } = useUser();
+  const router = useRouter();
   const pathname = usePathname();
   const hideHeader = pathname === "/signIn";
+
+  useEffect(() => {
+    if (!isLoading && !user) {
+      router.push("/signIn");
+    }
+  }, [user, isLoading]);
 
   if (isLoading) {
     return (
@@ -21,8 +29,6 @@ function RootLayoutNav() {
       </View>
     );
   }
-
-  if (!user) return <Redirect href="/signIn" />;
 
   return (
     <SafeAreaView style={styles.root}>

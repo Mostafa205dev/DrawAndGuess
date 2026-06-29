@@ -10,6 +10,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Button,
 } from "react-native";
 import { useUser } from "../contexts/UserContext";
 const { width } = Dimensions.get("window");
@@ -24,7 +25,7 @@ const AVATAR_STYLES = [
 ];
 
 export default function Header() {
-  const { user, token, setUser } = useUser();
+  const { user, token, setUser,logout } = useUser();
   const [notifVisible, setNotifVisible] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const getAvatarUrl = (style) => {
@@ -113,7 +114,7 @@ export default function Header() {
           <Text style={styles.name}>{user?.name}</Text>
         </View>
       </View>
-
+      <Button title="Logout" onPress={logout} />
       <View style={styles.container2}>
         <Text style={styles.score}>
           <Ionicons name="star" size={20} color="#FBBF24" />
