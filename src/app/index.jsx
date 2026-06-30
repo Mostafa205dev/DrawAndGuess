@@ -23,7 +23,7 @@ export default function HomeScreen() {
   const router = useRouter();
   const [showAddFriend, setShowAddFriend] = useState(false);
   const [searchText, setSearchText] = useState("");
-  const { user, token, socketRef } = useUser();
+  const { user, token, socketRef, onlineFriends } = useUser();
   const [results, setResults] = useState([]);
   const [roomCode, setRoomCode] = useState("");
 
@@ -166,7 +166,9 @@ export default function HomeScreen() {
         <View style={styles.friendsHeader}>
           <View style={styles.friendsHeaderRow}>
             <Text style={styles.joinroomText}>Friends </Text>
-            <Text style={styles.joinroomText}>2 online </Text>
+            <Text style={styles.joinroomText}>
+              {onlineFriends.length} online{" "}
+            </Text>
           </View>
           <View>
             <Button title="Add" onPress={() => setShowAddFriend(true)} />
@@ -182,11 +184,13 @@ export default function HomeScreen() {
                 }}
                 style={styles.Avatar}
               />
-
               <View>
                 <Text style={styles.joinroomText}>{friend.name}</Text>
-
-                <Text style={styles.joinroomText}>Online</Text>
+                <Text style={styles.joinroomText}>
+                  {onlineFriends.includes(friend._id.toString())
+                    ? "Online"
+                    : "Offline"}
+                </Text>
               </View>
             </View>
           ))}

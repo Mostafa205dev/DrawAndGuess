@@ -7,6 +7,7 @@ export function UserProvider({ children }) {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [onlineFriends, setOnlineFriends] = useState([]);
   const socketRef = useRef(null);
 
   const fetchUser = async () => {
@@ -43,6 +44,16 @@ export function UserProvider({ children }) {
     setToken(null);
   };
 
+  const fetchOnline = async (currentToken) => {
+    if (!user?.friends?.length) return;
+    const res = await fetch(
+      "https://drawandguessbackend.onrender.com/users/onlineFriends",
+      { headers: { Authorization: `Bearer ${currentToken || token}` } },
+    );
+    const data = await res.json();
+    setOnlineFriends(data.data.map((id) => id.toString()));
+  };
+
   useEffect(() => {
     fetchUser();
   }, []);
@@ -55,13 +66,29 @@ export function UserProvider({ children }) {
     socketRef.current = socket;
 
     socket.on("refresh", () => fetchUser());
+    socket.on("friendStatusChanged", () => fetchOnline());
 
     return () => socket.disconnect();
   }, [user?._id]);
 
+  useEffect(() => {
+    if (!user?.friends?.length || !token) return;
+    fetchOnline();
+  }, [user?._id, token]);
+
   return (
     <UserContext.Provider
-      value={{ user, setUser, token, fetchUser, isLoading, logout, socketRef }}
+      value={{
+        user,
+        setUser,
+        token,
+        fetchUser,
+        isLoading,
+        logout,
+        socketRef,
+        onlineFriends,
+        fetchOnline,
+      }}
     >
       {children}
     </UserContext.Provider>

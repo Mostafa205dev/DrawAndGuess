@@ -79,14 +79,7 @@ export default function Header() {
     }
   };
 
-  // setUser((prev) => ({
-  //   ...prev,
-  //   friendRequests: prev.friendRequests.filter((req) => req._id !== id),
-  //   friends: [
-  //     ...prev.friends,
-  //     prev.friendRequests.find((req) => req._id === id),
-  //   ],
-  // }));
+  
 
   const HandleReject = async (id) => {
     try {
