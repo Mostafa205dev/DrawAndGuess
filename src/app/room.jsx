@@ -50,6 +50,10 @@ export default function RoomScreen() {
         level: user.level,
       },
     });
+    
+    socket.on("roomUpdated", (updatedRoom) => {
+      setRoom(updatedRoom);
+    });
 
     socket.on("playerJoined", (newPlayer) => {
       setRoom((prev) => {
@@ -72,7 +76,6 @@ export default function RoomScreen() {
         },
       });
     });
-    
 
     return () => {
       socket.disconnect();
@@ -108,6 +111,19 @@ export default function RoomScreen() {
 
   const handleStart = async () => {
     socketRef.current?.emit("startGame", { roomCode: room.code, mode });
+  };
+
+  const changeRoomType = (type) => {
+    if (room.type === type) return;
+    setRoom((prev) => ({
+      ...prev,
+      type,
+    }));
+
+    socketRef.current?.emit("changeRoomType", {
+      roomCode: room.code,
+      type,
+    });
   };
 
   return (
@@ -160,6 +176,43 @@ export default function RoomScreen() {
       </ScrollView>
 
       <View style={styles.buttons}>
+        {isHost && (
+          <View style={styles.roomTypeContainer}>
+            <Pressable
+              onPress={() => changeRoomType("private")}
+              style={[
+                styles.roomTypeButton,
+                room.type === "private" && styles.activeButton,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.roomTypeText,
+                  room.type === "private" && styles.activeText,
+                ]}
+              >
+                🔒 Private
+              </Text>
+            </Pressable>
+
+            <Pressable
+              onPress={() => changeRoomType("public")}
+              style={[
+                styles.roomTypeButton,
+                room.type === "public" && styles.activeButton,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.roomTypeText,
+                  room.type === "public" && styles.activeText,
+                ]}
+              >
+                🌍 Public
+              </Text>
+            </Pressable>
+          </View>
+        )}
         {isHost && (
           <Pressable style={styles.startBtn} onPress={handleStart}>
             <Text style={styles.startText}>Start Game</Text>
@@ -258,6 +311,34 @@ const styles = StyleSheet.create({
   leaveText: {
     color: "white",
     fontSize: 18,
+    fontWeight: "bold",
+  },
+
+  // private / public buttons
+  roomTypeContainer: {
+    flexDirection: "row",
+    backgroundColor: "#ffffff22",
+    borderRadius: 12,
+    overflow: "hidden",
+  },
+
+  roomTypeButton: {
+    flex: 1,
+    paddingVertical: 10,
+    alignItems: "center",
+  },
+
+  activeButton: {
+    backgroundColor: "#fff",
+  },
+
+  roomTypeText: {
+    color: "white",
+    fontWeight: "600",
+  },
+
+  activeText: {
+    color: "#5B3CC4",
     fontWeight: "bold",
   },
 });

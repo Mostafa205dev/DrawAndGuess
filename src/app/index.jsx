@@ -177,22 +177,24 @@ export default function HomeScreen() {
 
         <View style={styles.friendsList}>
           {user?.friends?.map((friend) => (
-            <View style={styles.friend} key={friend._id}>
-              <Image
-                source={{
-                  uri: `https://api.dicebear.com/7.x/${friend.avatar}/png?seed=${friend.name}`,
-                }}
-                style={styles.Avatar}
-              />
-              <View>
-                <Text style={styles.joinroomText}>{friend.name}</Text>
-                <Text style={styles.joinroomText}>
-                  {onlineFriends.includes(friend._id.toString())
-                    ? "Online"
-                    : "Offline"}
-                </Text>
+            // <Pressable onPress={()=>}>
+              <View style={styles.friend} key={friend._id}>
+                <Image
+                  source={{
+                    uri: `https://api.dicebear.com/7.x/${friend.avatar}/png?seed=${friend.name}`,
+                  }}
+                  style={styles.Avatar}
+                />
+                <View>
+                  <Text style={styles.joinroomText}>{friend.name}</Text>
+                  <Text style={styles.joinroomText}>
+                    {onlineFriends.includes(friend._id.toString())
+                      ? "Online"
+                      : "Offline"}
+                  </Text>
+                </View>
               </View>
-            </View>
+            // </Pressable>
           ))}
         </View>
 
