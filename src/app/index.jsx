@@ -112,6 +112,37 @@ export default function HomeScreen() {
     }
   };
 
+  const handleQuickplay = async () => {
+    try {
+      const response = await fetch(
+        "https://drawandguessbackend.onrender.com/rooms/quickPlay",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({}),
+        },
+      );
+      if (!response.ok) {
+        console.log(await response.text());
+        return;
+      }
+
+      const data = await response.json();
+
+      router.push({
+        pathname: "/room",
+        params: {
+          room: JSON.stringify(data.data),
+        },
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   return (
     <ImageBackground
       source={require("../../assets/images/background.png")}
@@ -132,11 +163,13 @@ export default function HomeScreen() {
         </View>
 
         <View style={styles.play}>
-          <View style={styles.titleplay}>
-            <QuickPlayIcon />
-            <Text style={styles.title}>Quick play</Text>
-            <Text style={styles.description}>Public match</Text>
-          </View>
+          <Pressable onPress={() => handleQuickplay()}>
+            <View style={styles.titleplay}>
+              <QuickPlayIcon />
+              <Text style={styles.title}>Quick play</Text>
+              <Text style={styles.description}>Public match</Text>
+            </View>
+          </Pressable>
           <Pressable onPress={() => handleCreateRoom()}>
             <View style={styles.titleplay}>
               <CreateRoomIcon />
@@ -178,22 +211,22 @@ export default function HomeScreen() {
         <View style={styles.friendsList}>
           {user?.friends?.map((friend) => (
             // <Pressable onPress={()=>}>
-              <View style={styles.friend} key={friend._id}>
-                <Image
-                  source={{
-                    uri: `https://api.dicebear.com/7.x/${friend.avatar}/png?seed=${friend.name}`,
-                  }}
-                  style={styles.Avatar}
-                />
-                <View>
-                  <Text style={styles.joinroomText}>{friend.name}</Text>
-                  <Text style={styles.joinroomText}>
-                    {onlineFriends.includes(friend._id.toString())
-                      ? "Online"
-                      : "Offline"}
-                  </Text>
-                </View>
+            <View style={styles.friend} key={friend._id}>
+              <Image
+                source={{
+                  uri: `https://api.dicebear.com/7.x/${friend.avatar}/png?seed=${friend.name}`,
+                }}
+                style={styles.Avatar}
+              />
+              <View>
+                <Text style={styles.joinroomText}>{friend.name}</Text>
+                <Text style={styles.joinroomText}>
+                  {onlineFriends.includes(friend._id.toString())
+                    ? "Online"
+                    : "Offline"}
+                </Text>
               </View>
+            </View>
             // </Pressable>
           ))}
         </View>
