@@ -83,7 +83,11 @@ export default function GameScreen() {
   });
 
   useEffect(() => {
-    const socket = io("https://drawandguessbackend.onrender.com");
+    const socket = io("https://drawandguessbackend.onrender.com", {
+      auth: {
+        userId: user._id,
+      },
+    });
     socketRef.current = socket;
 
     socket.emit("joinGame", { roomCode: room.code });
