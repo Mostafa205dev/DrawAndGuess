@@ -171,6 +171,32 @@ export default function HomeScreen() {
     });
   };
 
+  const sentPublicRoomInvite = async (friendId) => {
+    const response = await fetch(
+      "https://drawandguessbackend.onrender.com/rooms/createRoom",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ type: "public" }),
+      },
+    );
+    const data = await response.json();
+
+    socketRef.current?.emit("roomInvite", {
+      friendId,
+      roomCode: data.data.code,
+      from: { _id: user._id, name: user.name, avatar: user.avatar },
+    });
+
+    router.push({
+      pathname: "/room",
+      params: { room: JSON.stringify(data.data) },
+    });
+  };
+
   return (
     <ImageBackground
       source={require("../../assets/images/background.png")}
