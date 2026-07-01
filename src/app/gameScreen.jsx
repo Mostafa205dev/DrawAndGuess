@@ -29,6 +29,7 @@ export default function GameScreen() {
   const [selectedColor, setSelectedColor] = useState("black");
   const [wordChoices, setWordChoices] = useState(room.wordChoices || []);
   const [timeLeft, setTimeLeft] = useState(null);
+  const hasGuessed = room.guessedPlayers?.includes(user._id);
   const timerRef = useRef(null);
   const COLORS = [
     "black",
@@ -146,6 +147,7 @@ export default function GameScreen() {
   }, []);
 
   const handleGuess = () => {
+    if (hasGuessed) return;
     socketRef.current?.emit("checkWord", {
       roomCode: room.code,
       guess: guess.trim(),
@@ -223,7 +225,7 @@ export default function GameScreen() {
       )}
 
       {/*  entring the word */}
-      {!isDrawer && selectedWord && (
+      {!isDrawer && selectedWord && !hasGuessed && (
         <View style={styles.guessContainer}>
           <TextInput
             placeholder="Type your guess..."
