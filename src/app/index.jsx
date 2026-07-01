@@ -197,6 +197,30 @@ export default function HomeScreen() {
     });
   };
 
+  const joinRoom = async (friendId) => {
+    try {
+      const response = await fetch(
+        "https://drawandguessbackend.onrender.com/rooms/joinFriendRoom",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ friendId }),
+        },
+      );
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message);
+      router.push({
+        pathname: "/room",
+        params: { room: JSON.stringify(data.data) },
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   return (
     <ImageBackground
       source={require("../../assets/images/background.png")}
@@ -265,12 +289,13 @@ export default function HomeScreen() {
         <View style={styles.friendsList}>
           {user?.friends?.map((friend) => (
             <Pressable
+              key={friend._id}
               onPress={() => {
                 setSelectedFriend(friend);
                 setShowFriendOptions(true);
               }}
             >
-              <View style={styles.friend} key={friend._id}>
+              <View style={styles.friend}>
                 <Image
                   source={{
                     uri: `https://api.dicebear.com/7.x/${friend.avatar}/png?seed=${friend.name}`,
@@ -376,8 +401,8 @@ export default function HomeScreen() {
               <Button
                 title="Join room"
                 onPress={() => {
-                  setShowFriendOptions(false);
                   joinRoom(selectedFriend._id);
+                  setShowFriendOptions(false);
                 }}
               />
             </View>
