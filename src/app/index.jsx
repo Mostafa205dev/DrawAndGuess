@@ -26,6 +26,8 @@ export default function HomeScreen() {
   const { user, token, socketRef, onlineFriends } = useUser();
   const [results, setResults] = useState([]);
   const [roomCode, setRoomCode] = useState("");
+  const [showFriendOptions, setShowFriendOptions] = useState(false);
+  const [selectedFriend, setSelectedFriend] = useState(null);
 
   const searchUsers = async (text) => {
     setSearchText(text);
@@ -88,7 +90,7 @@ export default function HomeScreen() {
     }
   };
 
-  const handleJoinRoom = async (code) => {
+  const handleJoinRoom = async () => {
     try {
       const response = await fetch(
         "https://drawandguessbackend.onrender.com/rooms/joinRoom",
@@ -141,6 +143,32 @@ export default function HomeScreen() {
     } catch (err) {
       console.log(err);
     }
+  };
+
+  const sentPrivateRoomInvite = async (friendId) => {
+    const response = await fetch(
+      "https://drawandguessbackend.onrender.com/rooms/createRoom",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ type: "private" }),
+      },
+    );
+    const data = await response.json();
+
+    socketRef.current?.emit("roomInvite", {
+      friendId,
+      roomCode: data.data.code,
+      from: { _id: user._id, name: user.name, avatar: user.avatar },
+    });
+
+    router.push({
+      pathname: "/room",
+      params: { room: JSON.stringify(data.data) },
+    });
   };
 
   return (
@@ -210,30 +238,35 @@ export default function HomeScreen() {
 
         <View style={styles.friendsList}>
           {user?.friends?.map((friend) => (
-            // <Pressable onPress={()=>}>
-            <View style={styles.friend} key={friend._id}>
-              <Image
-                source={{
-                  uri: `https://api.dicebear.com/7.x/${friend.avatar}/png?seed=${friend.name}`,
-                }}
-                style={styles.Avatar}
-              />
-              <View>
-                <Text style={styles.joinroomText}>{friend.name}</Text>
-                <Text style={styles.joinroomText}>
-                  {onlineFriends.includes(friend._id.toString())
-                    ? "Online"
-                    : "Offline"}
-                </Text>
+            <Pressable
+              onPress={() => {
+                setSelectedFriend(friend);
+                setShowFriendOptions(true);
+              }}
+            >
+              <View style={styles.friend} key={friend._id}>
+                <Image
+                  source={{
+                    uri: `https://api.dicebear.com/7.x/${friend.avatar}/png?seed=${friend.name}`,
+                  }}
+                  style={styles.Avatar}
+                />
+                <View>
+                  <Text style={styles.joinroomText}>{friend.name}</Text>
+                  <Text style={styles.joinroomText}>
+                    {onlineFriends.includes(friend._id.toString())
+                      ? "Online"
+                      : "Offline"}
+                  </Text>
+                </View>
               </View>
-            </View>
-            // </Pressable>
+            </Pressable>
           ))}
         </View>
 
         <Button title="Go to About" onPress={() => router.push("/about")} />
       </ScrollView>
-
+      {/* add friend modal */}
       <Modal
         visible={showAddFriend}
         animationType="slide"
@@ -278,6 +311,49 @@ export default function HomeScreen() {
                   </View>
                 ))
               )}
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* friend options modal */}
+      <Modal
+        visible={showFriendOptions}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setShowFriendOptions(false)}
+      >
+        <View style={styles.overlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Friend Options</Text>
+              <Pressable onPress={() => setShowFriendOptions(false)}>
+                <Text style={styles.closeText}>✕</Text>
+              </Pressable>
+            </View>
+
+            <View style={styles.friendOptionsList}>
+              <Button
+                title="Send Private Room Invite "
+                onPress={() => {
+                  setShowFriendOptions(false);
+                  sentPrivateRoomInvite(selectedFriend._id);
+                }}
+              />
+              <Button
+                title="Send Public Room Invite "
+                onPress={() => {
+                  setShowFriendOptions(false);
+                  sentPublicRoomInvite(selectedFriend._id);
+                }}
+              />
+              <Button
+                title="Join room"
+                onPress={() => {
+                  setShowFriendOptions(false);
+                  joinRoom(selectedFriend._id);
+                }}
+              />
             </View>
           </View>
         </View>

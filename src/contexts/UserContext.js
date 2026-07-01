@@ -8,6 +8,7 @@ export function UserProvider({ children }) {
   const [token, setToken] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [onlineFriends, setOnlineFriends] = useState([]);
+  const [roomInvites, setRoomInvites] = useState([]);
   const socketRef = useRef(null);
 
   const fetchUser = async () => {
@@ -67,6 +68,10 @@ export function UserProvider({ children }) {
 
     socket.on("refresh", () => fetchUser());
     socket.on("friendStatusChanged", () => fetchOnline());
+    
+    socket.on("roomInviteReceived", (invite) => {
+      setRoomInvites((prev) => [...prev, invite]);
+    });
 
     return () => socket.disconnect();
   }, [user?._id]);
@@ -88,6 +93,8 @@ export function UserProvider({ children }) {
         socketRef,
         onlineFriends,
         fetchOnline,
+        roomInvites,
+        setRoomInvites,
       }}
     >
       {children}

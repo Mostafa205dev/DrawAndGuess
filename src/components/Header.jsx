@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { useState } from "react";
 
 import {
@@ -26,9 +27,19 @@ const AVATAR_STYLES = [
 ];
 
 export default function Header() {
-  const { user, token, setUser, fetchUser, logout ,socketRef } = useUser();
+  const {
+    user,
+    token,
+    setUser,
+    fetchUser,
+    logout,
+    socketRef,
+    roomInvites,
+    setRoomInvites,
+  } = useUser();
   const [notifVisible, setNotifVisible] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const router = useRouter();
 
   const getAvatarUrl = (style) => {
     return `https://api.dicebear.com/7.x/${style}/png?seed=${user?.name || ""}`;
@@ -79,8 +90,6 @@ export default function Header() {
     }
   };
 
-  
-
   const HandleReject = async (id) => {
     try {
       setUser((prev) => ({
@@ -97,6 +106,39 @@ export default function Header() {
     } catch (err) {
       console.log("cant reject friend");
     }
+  };
+
+  const acceptInvite = async (invite) => {
+    try {
+      const response = await fetch(
+        "https://drawandguessbackend.onrender.com/rooms/joinRoom",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ code: invite.roomCode }),
+        },
+      );
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message);
+      setRoomInvites((prev) =>
+        prev.filter((i) => i.roomCode !== invite.roomCode),
+      );
+      router.push({
+        pathname: "/room",
+        params: { room: JSON.stringify(data.data) },
+      });
+    } catch (err) {
+      console.log("Failed to join room:", err);
+    }
+  };
+
+  const rejectInvite = async (invite) => {
+    setRoomInvites((prev) =>
+      prev.filter((i) => i.roomCode !== invite.roomCode),
+    );
   };
 
   return (
@@ -169,45 +211,79 @@ export default function Header() {
         </Pressable>
       </Modal>
 
+      {/* notifications */}
       <Modal visible={notifVisible} transparent animationType="slide">
         <Pressable
           style={styles.overlay}
           onPress={() => setNotifVisible(false)}
         >
           <View style={styles.modal}>
-            <Text style={styles.modalTitle}>Friend Requests</Text>
-            {user?.friendRequests?.length === 0 ? (
+            <Text style={styles.modalTitle}>Notifications</Text>
+            {user?.friendRequests?.length === 0 && roomInvites.length === 0 ? (
               <Text
                 style={{ textAlign: "center", color: "#888", marginTop: 20 }}
               >
-                No friend requests
+                No Notifications
               </Text>
             ) : (
-              user?.friendRequests?.map((req) => (
-                <View key={req._id} style={styles.reqRow}>
-                  <Image
-                    source={{
-                      uri: `https://api.dicebear.com/7.x/${req.avatar}/png?seed=${req.name}`,
-                    }}
-                    style={styles.reqAvatar}
-                  />
-                  <Text style={styles.reqName}>{req.name}</Text>
-                  <View style={styles.reqButtons}>
-                    <Pressable
-                      style={[styles.reqBtn, { backgroundColor: "#22c55e" }]}
-                      onPress={() => HandleAccept(req._id)}
-                    >
-                      <Text style={styles.reqBtnText}>✓</Text>
-                    </Pressable>
-                    <Pressable
-                      style={[styles.reqBtn, { backgroundColor: "#ef4444" }]}
-                      onPress={() => HandleReject(req._id)}
-                    >
-                      <Text style={styles.reqBtnText}>✕</Text>
-                    </Pressable>
+              <>
+                {user?.friendRequests?.map((req) => (
+                  <View key={req._id} style={styles.reqRow}>
+                    <Image
+                      source={{
+                        uri: `https://api.dicebear.com/7.x/${req.avatar}/png?seed=${req.name}`,
+                      }}
+                      style={styles.reqAvatar}
+                    />
+                    <Text style={styles.reqName}>{req.name}</Text>
+                    <View style={styles.reqButtons}>
+                      <Pressable
+                        style={[styles.reqBtn, { backgroundColor: "#22c55e" }]}
+                        onPress={() => HandleAccept(req._id)}
+                      >
+                        <Text style={styles.reqBtnText}>✓</Text>
+                      </Pressable>
+                      <Pressable
+                        style={[styles.reqBtn, { backgroundColor: "#ef4444" }]}
+                        onPress={() => HandleReject(req._id)}
+                      >
+                        <Text style={styles.reqBtnText}>✕</Text>
+                      </Pressable>
+                    </View>
                   </View>
-                </View>
-              ))
+                ))}
+
+                {roomInvites.map((invite) => (
+                  <View key={invite.roomCode} style={styles.reqRow}>
+                    <Image
+                      source={{
+                        uri: `https://api.dicebear.com/7.x/${invite.from.avatar}/png?seed=${invite.from.name}`,
+                      }}
+                      style={styles.reqAvatar}
+                    />
+                    <Text style={styles.reqName}>
+                      {invite.from.name} invited you to play
+                    </Text>
+                    <View style={styles.reqButtons}>
+                      <Pressable
+                        style={[styles.reqBtn, { backgroundColor: "#22c55e" }]}
+                        onPress={() => {
+                          acceptInvite(invite);
+                          setNotifVisible(false);
+                        }}
+                      >
+                        <Text style={styles.reqBtnText}>✓</Text>
+                      </Pressable>
+                      <Pressable
+                        style={[styles.reqBtn, { backgroundColor: "#ef4444" }]}
+                        onPress={() => rejectInvite(invite)}
+                      >
+                        <Text style={styles.reqBtnText}>✕</Text>
+                      </Pressable>
+                    </View>
+                  </View>
+                ))}
+              </>
             )}
           </View>
         </Pressable>
