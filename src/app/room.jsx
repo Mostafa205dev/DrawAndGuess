@@ -110,6 +110,10 @@ export default function RoomScreen() {
   };
 
   const handleStart = async () => {
+    if (room.players.length < 2) {
+      alert("At least 2 players are required to start the game.");
+      return;
+    }
     socketRef.current?.emit("startGame", { roomCode: room.code, mode });
   };
 
