@@ -108,12 +108,20 @@ export default function GameScreen() {
       }, 1000);
     });
 
+    socket.on("loadDrawing", (drawing) => {
+      setPaths(drawing);
+    });
+
     socket.on("startPath", ({ color }) => {
       setPaths((prev) => [...prev, { d: "", color }]);
     });
 
     socket.on("drawing", ({ path, color }) => {
       setPaths((prev) => {
+        if (prev.length === 0) {
+          return [...prev, { d: path, color }];
+        }
+
         const updated = [...prev];
         updated[updated.length - 1] = { d: path, color };
         return updated;
