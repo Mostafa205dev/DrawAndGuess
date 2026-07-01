@@ -50,7 +50,7 @@ export default function RoomScreen() {
         level: user.level,
       },
     });
-    
+
     socket.on("roomUpdated", (updatedRoom) => {
       setRoom(updatedRoom);
     });
@@ -67,12 +67,11 @@ export default function RoomScreen() {
       setRoom(room);
     });
 
-    socket.on("gameStarted", (roomData, words) => {
+    socket.on("gameStarted", (roomData) => {
       router.push({
         pathname: "/gameScreen",
         params: {
           room: JSON.stringify(roomData),
-          words: JSON.stringify(words),
         },
       });
     });

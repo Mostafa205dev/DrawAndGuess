@@ -6,15 +6,56 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Header from "../components/Header";
 import { UserProvider, useUser } from "../contexts/UserContext";
 function RootLayoutNav() {
-  const { user, isLoading } = useUser();
+  const { user, isLoading, token } = useUser();
   const router = useRouter();
   const pathname = usePathname();
   const hideHeader = pathname === "/signIn";
+  const checkCurrentRoom = async () => {
+    try {
+      const response = await fetch(
+        "https://drawandguessbackend.onrender.com/rooms/myRoom",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      const data = await response.json();
+
+      if (!data.data) return;
+
+      if (data.data.status === "waiting") {
+        router.replace({
+          pathname: "/room",
+          params: {
+            room: JSON.stringify(data.data),
+          },
+        });
+      }
+
+      if (data.data.status === "playing") {
+        router.replace({
+          pathname: "/gameScreen",
+          params: {
+            room: JSON.stringify(data.data),
+          },
+        });
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   useEffect(() => {
-    if (!isLoading && !user) {
-      router.push("/signIn");
+    if (isLoading) return;
+
+    if (!user) {
+      router.replace("/signIn");
+      return;
     }
+
+    checkCurrentRoom();
   }, [user, isLoading]);
 
   if (isLoading) {

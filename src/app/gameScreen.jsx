@@ -20,16 +20,14 @@ export default function GameScreen() {
   const [room, setRoom] = useState(
     params.room ? JSON.parse(params.room) : null,
   );
-  const [wordChoices, setWordChoices] = useState(
-    params.words ? JSON.parse(params.words) : [],
-  );
-  const [selectedWord, setSelectedWord] = useState(null);
+  const [selectedWord, setSelectedWord] = useState(room?.currentWord || null);
   const [paths, setPaths] = useState([]);
   const currentPath = useRef("");
   const [guess, setGuess] = useState("");
   const selectedColorRef = useRef("black");
   const [message, setMessage] = useState("");
   const [selectedColor, setSelectedColor] = useState("black");
+  const [wordChoices, setWordChoices] = useState(room.wordChoices || []);
   const [timeLeft, setTimeLeft] = useState(null);
   const timerRef = useRef(null);
   const COLORS = [
@@ -92,6 +90,7 @@ export default function GameScreen() {
     socket.on("roomUpdated", (updatedRoom) => {
       setRoom(updatedRoom);
       setSelectedWord(updatedRoom.currentWord);
+      setWordChoices(updatedRoom.wordChoices || []);
     });
 
     socket.on("startTimer", ({ seconds }) => {
@@ -126,9 +125,9 @@ export default function GameScreen() {
       clearInterval(timerRef.current);
     });
 
-    socket.on("newRound", ({ room, words }) => {
+    socket.on("newRound", ({ room }) => {
       setRoom(room);
-      setWordChoices(words);
+      setWordChoices(room.wordChoices || []);
       setPaths([]);
       setSelectedWord(null);
       setMessage("");
