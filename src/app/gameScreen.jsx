@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { io } from "socket.io-client";
+import LottieView from "lottie-react-native";
 import { useUser } from "../contexts/UserContext";
 
 export default function GameScreen() {
@@ -253,7 +254,19 @@ export default function GameScreen() {
         </View>
       )}
 
-      {(!isDrawer || selectedWord) && (
+      {!isDrawer && !selectedWord && (
+        <View style={styles.loadingContainer}>
+          <LottieView
+            source={require("../../assets/images/startGame.json")}
+            autoPlay
+            loop
+            style={styles.loadingAnimation}
+          />
+          <Text>Drawer is choosing a word...</Text>
+        </View>
+      )}
+
+      {!isDrawer && selectedWord && (
         <Svg style={{ flex: 1 }}>
           {paths.map((path, index) => (
             <Path
@@ -355,5 +368,17 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     textTransform: "capitalize",
+  },
+
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "white",
+  },
+
+  loadingAnimation: {
+    width: 200,
+    height: 200,
   },
 });
