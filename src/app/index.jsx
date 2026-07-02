@@ -397,27 +397,37 @@ export default function HomeScreen() {
             </View>
 
             <View style={styles.friendOptionsList}>
-              <Button
-                title="Send Private Room Invite "
+              <Pressable
+                style={styles.friendOptionsButton}
                 onPress={() => {
                   setShowFriendOptions(false);
                   sentPrivateRoomInvite(selectedFriend._id);
                 }}
-              />
-              <Button
-                title="Send Public Room Invite "
+              >
+                <Text style={styles.friendOptionsButtonText}>
+                  Send Private Room Invite
+                </Text>
+              </Pressable>
+              <Pressable
+                style={styles.friendOptionsButton}
                 onPress={() => {
                   setShowFriendOptions(false);
                   sentPublicRoomInvite(selectedFriend._id);
                 }}
-              />
-              <Button
-                title="Join room"
+              >
+                <Text style={styles.friendOptionsButtonText}>
+                  Send Public Room Invite
+                </Text>
+              </Pressable>
+              <Pressable
+                style={styles.friendOptionsButton}
                 onPress={() => {
                   joinRoom(selectedFriend._id);
                   setShowFriendOptions(false);
                 }}
-              />
+              >
+                <Text style={styles.friendOptionsButtonText}>Join Room</Text>
+              </Pressable>
             </View>
           </View>
         </View>
@@ -592,9 +602,26 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   modalTitle: {
-    color: "white",
+    color: Colors.White,
     fontSize: 18,
     fontWeight: "bold",
+  },
+  friendOptionsList: {
+    gap: 10,
+    padding: 10,
+    backgroundColor: Colors.LightPurple,
+    borderRadius: 12,
+  },
+  friendOptionsButton: {
+    backgroundColor: Colors.Pink,
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
+  friendOptionsButtonText: {
+    color: Colors.White,
+    fontSize: 16,
+    fontWeight: "bold",
+    textAlign: "center",
   },
   closeText: {
     color: Colors.White,
