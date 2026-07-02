@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import { io } from "socket.io-client";
 import { useUser } from "../contexts/UserContext";
+import LottieView from "lottie-react-native";
 const { height, width } = Dimensions.get("window");
 
 export default function RoomScreen() {
@@ -26,6 +27,7 @@ export default function RoomScreen() {
   const [mode, setMode] = useState(
     params.room ? JSON.parse(params.room).mode || "normal" : "normal",
   );
+  const [isLoading, setIsLoading] = useState(false);
   if (!room) return null;
   const socketRef = useRef(null);
 
@@ -78,6 +80,7 @@ export default function RoomScreen() {
           room: JSON.stringify(roomData),
         },
       });
+      setIsLoading(false);
     });
 
     return () => {
@@ -117,6 +120,7 @@ export default function RoomScreen() {
       alert("At least 2 players are required to start the game.");
       return;
     }
+    setIsLoading(true);
     socketRef.current?.emit("startGame", { roomCode: room.code, mode });
   };
 
@@ -133,6 +137,20 @@ export default function RoomScreen() {
     });
   };
 
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <LottieView
+          source={require("../../assets/images/loading.json")}
+          autoPlay
+          loop
+          style={styles.loadingAnimation}
+        />
+        <Text>starting The Game...</Text>
+      </View>
+    );
+  }
+  console.log(room.players.map(p => p._id));
   return (
     <ImageBackground
       source={require("../../assets/images/background.png")}
