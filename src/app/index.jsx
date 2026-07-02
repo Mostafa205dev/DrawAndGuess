@@ -243,7 +243,7 @@ export default function HomeScreen() {
       >
         <View style={styles.talk}>
           <Logo />
-          <Text style={styles.title}>Draw & Guess</Text>
+          <Text style={styles.title}>Sketchie</Text>
           <Text style={styles.description}>
             Sketch it. Guess it. Laugh about it.
           </Text>
@@ -296,7 +296,7 @@ export default function HomeScreen() {
         </View>
 
         <View style={styles.friendsList}>
-          {user?.friends?.map((friend) => (
+          {onlineFriends.map((friend) => (
             <Pressable
               key={friend._id}
               onPress={() => {
@@ -315,7 +315,7 @@ export default function HomeScreen() {
                   <View>
                     <Text style={styles.friendName}>{friend.name}</Text>
                     <Text style={styles.friendStatus}>
-                      {onlineFriends.includes(friend._id.toString())
+                      {onlineFriends.includes(friend._id)
                         ? "Online"
                         : "Offline"}
                     </Text>

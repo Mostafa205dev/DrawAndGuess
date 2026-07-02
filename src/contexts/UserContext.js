@@ -12,29 +12,34 @@ export function UserProvider({ children }) {
   const socketRef = useRef(null);
 
   const fetchUser = async () => {
-    const token = await SecureStore.getItemAsync("token");
-    setToken(token);
-    if (!token) {
+    try {
+      const token = await SecureStore.getItemAsync("token");
+      setToken(token);
+      if (!token) {
+        setIsLoading(false);
+        return;
+      }
+
+      const response = await fetch(
+        "https://drawandguessbackend.onrender.com/users/me",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
+
+      if (!response.ok) {
+        await SecureStore.deleteItemAsync("token");
+        setIsLoading(false);
+        return;
+      }
+
+      const data = await response.json();
+      setUser(data.data);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+    } finally {
       setIsLoading(false);
-      return;
     }
-
-    const response = await fetch(
-      "https://drawandguessbackend.onrender.com/users/me",
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      },
-    );
-
-    if (!response.ok) {
-      await SecureStore.deleteItemAsync("token");
-      setIsLoading(false);
-      return;
-    }
-
-    const data = await response.json();
-    setUser(data.data);
-    setIsLoading(false);
   };
 
   const logout = async () => {
@@ -43,16 +48,27 @@ export function UserProvider({ children }) {
     socketRef.current = null;
     setUser(null);
     setToken(null);
+    setOnlineFriends([]);
+    setRoomInvites([]);
   };
 
   const fetchOnline = async (currentToken) => {
-    if (!user?.friends?.length) return;
-    const res = await fetch(
-      "https://drawandguessbackend.onrender.com/users/onlineFriends",
-      { headers: { Authorization: `Bearer ${currentToken || token}` } },
-    );
-    const data = await res.json();
-    setOnlineFriends(data.data.map((id) => id.toString()));
+    try {
+      console.log("fetchOnline called");
+      if (!user?.friends?.length) return;
+      const res = await fetch(
+        "https://drawandguessbackend.onrender.com/users/onlineFriends",
+        { headers: { Authorization: `Bearer ${currentToken || token}` } },
+      );
+      if (!res.ok) {
+        return;
+      }
+      const data = await res.json();
+      console.log(data);
+      setOnlineFriends(data.data);
+    } catch (error) {
+      console.error("Error fetching online friends:", error);
+    }
   };
 
   useEffect(() => {
@@ -61,14 +77,18 @@ export function UserProvider({ children }) {
 
   useEffect(() => {
     if (!user) return;
+    socketRef.current?.disconnect();
     const socket = io("https://drawandguessbackend.onrender.com", {
       auth: { userId: user._id },
     });
     socketRef.current = socket;
 
     socket.on("refresh", () => fetchUser());
-    socket.on("friendStatusChanged", () => fetchOnline());
-    
+    socket.on("friendStatusChanged", () => {
+      console.log("friendStatusChanged received");
+      fetchOnline();
+    });
+
     socket.on("roomInviteReceived", (invite) => {
       setRoomInvites((prev) => [...prev, invite]);
     });
