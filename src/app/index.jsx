@@ -296,20 +296,23 @@ export default function HomeScreen() {
               }}
             >
               <View style={styles.friend}>
-                <Image
-                  source={{
-                    uri: `https://api.dicebear.com/7.x/${friend.avatar}/png?seed=${friend.name}`,
-                  }}
-                  style={styles.Avatar}
-                />
-                <View>
-                  <Text style={styles.friendName}>{friend.name}</Text>
-                  <Text style={styles.friendStatus}>
-                    {onlineFriends.includes(friend._id.toString())
-                      ? "Online"
-                      : "Offline"}
-                  </Text>
+                <View style={styles.AvatarAndName}>
+                  <Image
+                    source={{
+                      uri: `https://api.dicebear.com/7.x/${friend.avatar}/png?seed=${friend.name}`,
+                    }}
+                    style={styles.Avatar}
+                  />
+                  <View>
+                    <Text style={styles.friendName}>{friend.name}</Text>
+                    <Text style={styles.friendStatus}>
+                      {onlineFriends.includes(friend._id.toString())
+                        ? "Online"
+                        : "Offline"}
+                    </Text>
+                  </View>
                 </View>
+                <Text style={styles.friendArrow}>&gt;</Text>
               </View>
             </Pressable>
           ))}
@@ -494,11 +497,7 @@ const styles = StyleSheet.create({
   },
   joinButton: {
     width: "100%",
-    backgroundColor: "#22c55e",
-    shadowColor: "#6C63FF",
-    shadowOpacity: 0.4,
-    shadowRadius: 6,
-    elevation: 5,
+    backgroundColor: "#c00db7",
     paddingVertical: 12,
     borderRadius: 12,
     alignItems: "center",
@@ -511,6 +510,8 @@ const styles = StyleSheet.create({
   joinroomText: {
     color: "white",
   },
+
+  // Friends List Styles
   friendsHeader: {
     flexDirection: "row",
     alignItems: "center",
@@ -525,8 +526,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#24243e",
     flexDirection: "column",
     alignItems: "center",
-    gap: 10,
-    padding: 10,
+    gap: 15,
+    padding: 15,
     paddingHorizontal: 20,
     borderRadius: 16,
     width: "100%",
@@ -539,6 +540,15 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+  },
+  AvatarAndName: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  friendArrow: {
+    color: "white",
+    fontSize: 25,
   },
   Avatar: {
     width: 60,

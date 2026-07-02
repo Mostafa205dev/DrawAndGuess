@@ -36,6 +36,7 @@ export default function Header() {
     socketRef,
     roomInvites,
     setRoomInvites,
+    fetchOnline,
   } = useUser();
   const [notifVisible, setNotifVisible] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
@@ -64,6 +65,7 @@ export default function Header() {
         },
       );
       if (!res.ok) throw new Error("Failed");
+      fetchOnline();
     } catch (err) {
       console.log(err);
     }
@@ -297,7 +299,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: "#1e3a67",
+    backgroundColor: "#24243e",
     width: width,
     padding: 5,
   },
