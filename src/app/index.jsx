@@ -303,8 +303,8 @@ export default function HomeScreen() {
                   style={styles.Avatar}
                 />
                 <View>
-                  <Text style={styles.joinroomText}>{friend.name}</Text>
-                  <Text style={styles.joinroomText}>
+                  <Text style={styles.friendName}>{friend.name}</Text>
+                  <Text style={styles.friendStatus}>
                     {onlineFriends.includes(friend._id.toString())
                       ? "Online"
                       : "Offline"}
@@ -317,6 +317,7 @@ export default function HomeScreen() {
 
         <Button title="Go to About" onPress={() => router.push("/about")} />
       </ScrollView>
+
       {/* add friend modal */}
       <Modal
         visible={showAddFriend}
@@ -432,7 +433,7 @@ const styles = StyleSheet.create({
   title: {
     color: "white",
     fontSize: 24,
-    fontWeight: "bold",
+    fontWeight: "400",
   },
   text: {
     fontSize: 16,
@@ -444,7 +445,7 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     alignItems: "center",
     gap: 5,
-    backgroundColor: "#951ba5",
+    backgroundColor: "#24243e",
     padding: 10,
     width: width * (10 / 11),
   },
@@ -454,13 +455,14 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     alignItems: "center",
     gap: 5,
-    backgroundColor: "#951ba5",
+    backgroundColor: "#24243e",
     padding: 10,
     width: width * (5 / 11),
+    // width: width * 0.44,
   },
   description: {
-    color: "white",
-    fontSize: 10,
+    color: "#CFCFCF",
+    fontSize: 13,
   },
   play: {
     flexDirection: "row",
@@ -468,7 +470,7 @@ const styles = StyleSheet.create({
   },
   joinroom: {
     width: "100%",
-    backgroundColor: "#3c3344",
+    backgroundColor: "#24243e",
     borderRadius: 16,
     padding: 16,
     gap: 12,
@@ -481,7 +483,7 @@ const styles = StyleSheet.create({
   },
   codeInput: {
     width: "100%",
-    backgroundColor: "#51465c",
+    backgroundColor: "#34345a",
     color: "white",
     borderRadius: 12,
     paddingVertical: 12,
@@ -493,6 +495,10 @@ const styles = StyleSheet.create({
   joinButton: {
     width: "100%",
     backgroundColor: "#22c55e",
+    shadowColor: "#6C63FF",
+    shadowOpacity: 0.4,
+    shadowRadius: 6,
+    elevation: 5,
     paddingVertical: 12,
     borderRadius: 12,
     alignItems: "center",
@@ -516,22 +522,37 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   friendsList: {
+    backgroundColor: "#24243e",
     flexDirection: "column",
     alignItems: "center",
     gap: 10,
+    padding: 10,
+    paddingHorizontal: 20,
+    borderRadius: 16,
+    width: "100%",
   },
   friend: {
+    backgroundColor: "#c00db7",
+    width: "100%",
+    padding: 12,
+    borderRadius: 18,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: 10,
-    width: "100%",
   },
   Avatar: {
-    width: 70,
-    height: 70,
+    width: 60,
+    height: 60,
     borderRadius: 30,
-    padding: 5,
+  },
+  friendName: {
+    color: "#fff",
+    fontWeight: "700",
+    fontSize: 17,
+  },
+  friendStatus: {
+    color: "#7CFC98",
+    fontSize: 13,
   },
   overlay: {
     flex: 1,
@@ -539,7 +560,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.5)",
   },
   modalContent: {
-    backgroundColor: "#1A1A2E",
+    backgroundColor: "#24243e",
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 20,
