@@ -160,6 +160,17 @@ export default function Header() {
         </TouchableOpacity>
         <View>
           <Text style={styles.name}>{user?.name}</Text>
+          <View
+            style={{
+              flexDirection: "row",
+              // width: "100%",
+              alignItems: "center",
+              gap: 5,
+            }}
+          >
+            <View style={styles.nameUnderline} />
+            <Text style={styles.level}>Lv{user?.level}</Text>
+          </View>
         </View>
       </View>
       <Button title="Logout" onPress={logout} />
@@ -301,7 +312,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#24243e",
     width: width,
-    padding: 5,
+    padding: 8,
   },
   container2: {
     flexDirection: "row",
@@ -325,9 +336,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   name: {
-    borderBottomWidth: 5,
-    borderBottomColor: "#e1dbe7",
     color: "white",
+  },
+  level: {
+    color: "#e1dbe7",
+    fontSize: 12,
+  },
+  nameUnderline: {
+    marginTop: 2,
+    width: 24,
+    height: 5,
+    backgroundColor: "#e1dbe7",
   },
   notifications: {
     backgroundColor: "#3c3344",
