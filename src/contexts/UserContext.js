@@ -54,7 +54,6 @@ export function UserProvider({ children }) {
 
   const fetchOnline = async (currentToken) => {
     try {
-      console.log("fetchOnline called");
       if (!user?.friends?.length) return;
       const res = await fetch(
         "https://drawandguessbackend.onrender.com/users/onlineFriends",
@@ -64,7 +63,6 @@ export function UserProvider({ children }) {
         return;
       }
       const data = await res.json();
-      console.log(data);
       setOnlineFriends(data.data);
     } catch (error) {
       console.error("Error fetching online friends:", error);
@@ -85,7 +83,6 @@ export function UserProvider({ children }) {
 
     socket.on("refresh", () => fetchUser());
     socket.on("friendStatusChanged", () => {
-      console.log("friendStatusChanged received");
       fetchOnline();
     });
 
