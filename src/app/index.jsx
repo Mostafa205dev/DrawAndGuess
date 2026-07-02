@@ -19,6 +19,15 @@ import QuickPlayIcon from "../components/QuickPlayIcon";
 import { useUser } from "../contexts/UserContext";
 const { width, height } = Dimensions.get("window");
 
+const Colors = {
+  Pink: "#c00db7",
+  DarkPurple: "#24243e",
+  LightPurple: "#34345a",
+  White: "#fff",
+  Green: "#7CFC98",
+  Gray: "#888",
+};
+
 export default function HomeScreen() {
   const router = useRouter();
   const [showAddFriend, setShowAddFriend] = useState(false);
@@ -464,7 +473,7 @@ const styles = StyleSheet.create({
     // width: width * 0.44,
   },
   description: {
-    color: "#CFCFCF",
+    color: Colors.Gray,
     fontSize: 13,
   },
   play: {
@@ -473,21 +482,21 @@ const styles = StyleSheet.create({
   },
   joinroom: {
     width: "100%",
-    backgroundColor: "#24243e",
+    backgroundColor: Colors.DarkPurple,
     borderRadius: 16,
     padding: 16,
     gap: 12,
     alignItems: "center",
   },
   joinroomTitle: {
-    color: "white",
+    color: Colors.White,
     fontSize: 18,
     fontWeight: "bold",
   },
   codeInput: {
     width: "100%",
-    backgroundColor: "#34345a",
-    color: "white",
+    backgroundColor: Colors.LightPurple,
+    color: Colors.White,
     borderRadius: 12,
     paddingVertical: 12,
     paddingHorizontal: 16,
@@ -497,7 +506,7 @@ const styles = StyleSheet.create({
   },
   joinButton: {
     width: "100%",
-    backgroundColor: "#c00db7",
+    backgroundColor: Colors.Pink,
     paddingVertical: 12,
     borderRadius: 12,
     alignItems: "center",
@@ -508,7 +517,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   joinroomText: {
-    color: "white",
+    color: Colors.White,
   },
 
   // Friends List Styles
@@ -523,7 +532,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   friendsList: {
-    backgroundColor: "#24243e",
+    backgroundColor: Colors.DarkPurple,
     flexDirection: "column",
     alignItems: "center",
     gap: 15,
@@ -533,7 +542,7 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   friend: {
-    backgroundColor: "#c00db7",
+    backgroundColor: Colors.Pink,
     width: "100%",
     padding: 12,
     borderRadius: 18,
@@ -547,7 +556,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   friendArrow: {
-    color: "white",
+    color: Colors.White,
     fontSize: 25,
   },
   Avatar: {
@@ -556,12 +565,12 @@ const styles = StyleSheet.create({
     borderRadius: 30,
   },
   friendName: {
-    color: "#fff",
+    color: Colors.White,
     fontWeight: "700",
     fontSize: 17,
   },
   friendStatus: {
-    color: "#7CFC98",
+    color: Colors.Green,
     fontSize: 13,
   },
   overlay: {
@@ -570,7 +579,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.5)",
   },
   modalContent: {
-    backgroundColor: "#24243e",
+    backgroundColor: Colors.DarkPurple,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 20,
@@ -588,12 +597,12 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   closeText: {
-    color: "white",
+    color: Colors.White,
     fontSize: 18,
   },
   searchInput: {
-    backgroundColor: "#2A2A3E",
-    color: "white",
+    backgroundColor: Colors.DarkPurple,
+    color: Colors.White,
     borderRadius: 10,
     paddingHorizontal: 14,
     paddingVertical: 10,
@@ -603,7 +612,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   emptyText: {
-    color: "#888",
+    color: Colors.Gray,
     textAlign: "center",
     marginTop: 20,
   },
