@@ -315,9 +315,7 @@ export default function HomeScreen() {
                   <View>
                     <Text style={styles.friendName}>{friend.name}</Text>
                     <Text style={styles.friendStatus}>
-                      {onlineFriends.includes(friend._id)
-                        ? "Online"
-                        : "Offline"}
+                      {friend.online ? "Online" : "Offline"}
                     </Text>
                   </View>
                 </View>
