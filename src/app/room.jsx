@@ -1,5 +1,6 @@
 import { Picker } from "@react-native-picker/picker";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import LottieView from "lottie-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
   Dimensions,
@@ -13,7 +14,6 @@ import {
 } from "react-native";
 import { io } from "socket.io-client";
 import { useUser } from "../contexts/UserContext";
-import LottieView from "lottie-react-native";
 const { height, width } = Dimensions.get("window");
 
 export default function RoomScreen() {
@@ -141,7 +141,7 @@ export default function RoomScreen() {
     return (
       <View style={styles.loadingContainer}>
         <LottieView
-          source={require("../../assets/images/loading.json")}
+          source={require("../../assets/images/drawHand.json")}
           autoPlay
           loop
           style={styles.loadingAnimation}
@@ -150,7 +150,7 @@ export default function RoomScreen() {
       </View>
     );
   }
-  console.log(room.players.map(p => p._id));
+
   return (
     <ImageBackground
       source={require("../../assets/images/background.png")}
@@ -365,5 +365,17 @@ const styles = StyleSheet.create({
   activeText: {
     color: "#5B3CC4",
     fontWeight: "bold",
+  },
+
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "white",
+  },
+
+  loadingAnimation: {
+    width: 200,
+    height: 200,
   },
 });
