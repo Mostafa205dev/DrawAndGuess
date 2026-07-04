@@ -29,11 +29,10 @@ export default function RoomScreen() {
   );
   const [isLoading, setIsLoading] = useState(false);
   const socketRef = useRef(null);
-  
+  if (!room || !user) return null;
   const isHost = room.host === user._id;
-  
+
   const roomRef = useRef(room);
-  
 
   useEffect(() => {
     roomRef.current = room;
@@ -196,7 +195,9 @@ export default function RoomScreen() {
               <Text style={styles.playerName}>{player.name}</Text>
               <Text style={styles.playerLevel}>Level {player.level}</Text>
             </View>
-            {player._id === user._id && <Text style={styles.coins}>coins: {user.coins}</Text>}
+            {player._id === user._id && (
+              <Text style={styles.coins}>coins: {user.coins}</Text>
+            )}
             {room.host === player._id && (
               <Text style={styles.hostBadge}>👑</Text>
             )}
