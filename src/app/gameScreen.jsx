@@ -31,6 +31,8 @@ export default function GameScreen() {
   const [selectedColor, setSelectedColor] = useState("black");
   const [wordChoices, setWordChoices] = useState(room?.wordChoices || []);
   const [timeLeft, setTimeLeft] = useState(null);
+  const [wordChoiceTimeLeft, setWordChoiceTimeLeft] = useState(null);
+  const wordChoiceTimerRef = useRef(null);
   const hasGuessed = room?.guessedPlayers?.includes(user._id);
   const timerRef = useRef(null);
   const COLORS = [
@@ -96,6 +98,10 @@ export default function GameScreen() {
       setRoom(updatedRoom);
       setSelectedWord(updatedRoom.currentWord);
       setWordChoices(updatedRoom.wordChoices || []);
+      if (updatedRoom.currentWord) {
+        clearInterval(wordChoiceTimerRef.current);
+        setWordChoiceTimeLeft(null);
+      }
     });
 
     socket.on("startTimer", ({ seconds }) => {
@@ -146,6 +152,20 @@ export default function GameScreen() {
       setMessage("");
       setTimeLeft(null);
       clearInterval(timerRef.current);
+    });
+
+    socket.on("wordChoiceTimer", ({ seconds }) => {
+      setWordChoiceTimeLeft(seconds);
+      clearInterval(wordChoiceTimerRef.current);
+      wordChoiceTimerRef.current = setInterval(() => {
+        setWordChoiceTimeLeft((prev) => {
+          if (prev <= 1) {
+            clearInterval(wordChoiceTimerRef.current);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
     });
 
     socket.on("gameEnded", ({ room }) => {
@@ -199,6 +219,9 @@ export default function GameScreen() {
       {isDrawer && !selectedWord && (
         <View style={styles.wordsContainer}>
           <Text style={styles.wordsTitle}>Choose a word</Text>
+          {wordChoiceTimeLeft !== null && (
+            <Text style={styles.wordChoiceTimer}>{wordChoiceTimeLeft}s</Text>
+          )}
 
           {wordChoices.map((word) => (
             <Pressable
@@ -402,5 +425,11 @@ const styles = StyleSheet.create({
   loadingAnimation: {
     width: 200,
     height: 200,
+  },
+
+  wordChoiceTimer: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#ef4444",
   },
 });

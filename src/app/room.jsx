@@ -196,6 +196,7 @@ export default function RoomScreen() {
               <Text style={styles.playerName}>{player.name}</Text>
               <Text style={styles.playerLevel}>Level {player.level}</Text>
             </View>
+            {player._id === user._id && <Text style={styles.coins}>coins: {user.coins}</Text>}
             {room.host === player._id && (
               <Text style={styles.hostBadge}>👑</Text>
             )}
@@ -380,5 +381,11 @@ const styles = StyleSheet.create({
   loadingAnimation: {
     width: 200,
     height: 200,
+  },
+
+  coins: {
+    marginLeft: "auto",
+    color: "#FFD700",
+    fontWeight: "bold",
   },
 });
