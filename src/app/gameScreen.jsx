@@ -1,4 +1,5 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
+import LottieView from "lottie-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
   PanResponder,
@@ -10,7 +11,6 @@ import {
 } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { io } from "socket.io-client";
-import LottieView from "lottie-react-native";
 import { useUser } from "../contexts/UserContext";
 
 export default function GameScreen() {
@@ -21,6 +21,7 @@ export default function GameScreen() {
   const [room, setRoom] = useState(
     params.room ? JSON.parse(params.room) : null,
   );
+  const isHost = params.isHost === "true";
   const [selectedWord, setSelectedWord] = useState(room?.currentWord || null);
   const [paths, setPaths] = useState([]);
   const currentPath = useRef("");
@@ -28,9 +29,9 @@ export default function GameScreen() {
   const selectedColorRef = useRef("black");
   const [message, setMessage] = useState("");
   const [selectedColor, setSelectedColor] = useState("black");
-  const [wordChoices, setWordChoices] = useState(room.wordChoices || []);
+  const [wordChoices, setWordChoices] = useState(room?.wordChoices || []);
   const [timeLeft, setTimeLeft] = useState(null);
-  const hasGuessed = room.guessedPlayers?.includes(user._id);
+  const hasGuessed = room?.guessedPlayers?.includes(user._id);
   const timerRef = useRef(null);
   const COLORS = [
     "black",
@@ -43,9 +44,7 @@ export default function GameScreen() {
     "white",
   ];
 
-  if (!room) return <Text>No room data</Text>;
-
-  const isDrawer = room.currentDrawer === user._id;
+  const isDrawer = room?.currentDrawer === user._id;
   const socketRef = useRef(null);
 
   const panResponder = PanResponder.create({
@@ -173,13 +172,17 @@ export default function GameScreen() {
     setGuess("");
   };
 
+  if (!room) return <Text>No room data</Text>;
+
   return (
     <View
       style={{ flex: 1, backgroundColor: "white" }}
       {...(isDrawer && selectedWord ? panResponder.panHandlers : {})}
     >
       <Text>{isDrawer ? "You are drawing" : "Guess the word"}</Text>
+
       {message !== "" && <Text style={styles.userCorrectGuess}>{message}</Text>}
+
       {timeLeft !== null && (
         <Text
           style={{
@@ -266,7 +269,7 @@ export default function GameScreen() {
         </View>
       )}
 
-      {!isDrawer && selectedWord && (
+      {(!isDrawer || selectedWord) && (
         <Svg style={{ flex: 1 }}>
           {paths.map((path, index) => (
             <Path
@@ -278,6 +281,25 @@ export default function GameScreen() {
             />
           ))}
         </Svg>
+      )}
+
+      {isHost && (
+        <Pressable
+          onPress={() => {
+            socketRef.current?.emit("returnToRoom", { roomCode: room.code });
+            router.push({
+              pathname: "/room",
+              params: { room: JSON.stringify(room) },
+            });
+          }}
+          style={{
+            position: "absolute",
+            top: 20,
+            left: 20,
+          }}
+        >
+          <Text style={{ color: "blue", fontSize: 18 }}>Return to Room</Text>
+        </Pressable>
       )}
     </View>
   );

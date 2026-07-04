@@ -28,12 +28,12 @@ export default function RoomScreen() {
     params.room ? JSON.parse(params.room).mode || "normal" : "normal",
   );
   const [isLoading, setIsLoading] = useState(false);
-  if (!room) return null;
   const socketRef = useRef(null);
-
+  
   const isHost = room.host === user._id;
-
+  
   const roomRef = useRef(room);
+  
 
   useEffect(() => {
     roomRef.current = room;
@@ -78,6 +78,7 @@ export default function RoomScreen() {
         pathname: "/gameScreen",
         params: {
           room: JSON.stringify(roomData),
+          isHost: isHost,
         },
       });
       setIsLoading(false);
@@ -87,6 +88,8 @@ export default function RoomScreen() {
       socket.disconnect();
     };
   }, []);
+
+  if (!room) return null;
 
   const handleLeave = async () => {
     try {

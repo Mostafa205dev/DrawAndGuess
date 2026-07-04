@@ -325,7 +325,6 @@ export default function HomeScreen() {
           ))}
         </View>
 
-        <Button title="Go to About" onPress={() => router.push("/about")} />
       </ScrollView>
 
       {/* add friend modal */}

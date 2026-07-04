@@ -1,14 +1,17 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect } from "react";
 import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useUser } from "../contexts/UserContext";
 
 export default function ResultsScreen() {
   const params = useLocalSearchParams();
   const room = params.room ? JSON.parse(params.room) : null;
   const router = useRouter();
+  const { fetchUser } = useUser();
 
   useEffect(() => {
-    const timer = setTimeout(() => {
+    const timer = setTimeout(async () => {
+      await fetchUser();
       router.push({
         pathname: "/room",
         params: { room: JSON.stringify(room) },
