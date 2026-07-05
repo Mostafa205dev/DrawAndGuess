@@ -168,6 +168,13 @@ export default function GameScreen() {
       }, 1000);
     });
 
+    socket.on("returnedToRoom", (updatedRoom) => {
+      router.push({
+        pathname: "/room",
+        params: { room: JSON.stringify(updatedRoom) },
+      });
+    });
+
     socket.on("gameEnded", ({ room }) => {
       router.push({
         pathname: "/results",
@@ -292,7 +299,7 @@ export default function GameScreen() {
         </View>
       )}
 
-      {(!isDrawer || selectedWord) && (
+      {selectedWord && (
         <Svg style={{ flex: 1 }}>
           {paths.map((path, index) => (
             <Path
@@ -310,10 +317,6 @@ export default function GameScreen() {
         <Pressable
           onPress={() => {
             socketRef.current?.emit("returnToRoom", { roomCode: room.code });
-            router.push({
-              pathname: "/room",
-              params: { room: JSON.stringify(room) },
-            });
           }}
           style={{
             position: "absolute",
