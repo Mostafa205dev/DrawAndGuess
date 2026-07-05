@@ -287,6 +287,7 @@ export default function GameScreen() {
         </View>
       )}
 
+      {/* the loading container */}
       {!isDrawer && !selectedWord && (
         <View style={styles.loadingContainer}>
           <LottieView
@@ -299,6 +300,7 @@ export default function GameScreen() {
         </View>
       )}
 
+      {/* the draw */}
       {selectedWord && (
         <Svg style={{ flex: 1 }}>
           {paths.map((path, index) => (
@@ -313,6 +315,7 @@ export default function GameScreen() {
         </Svg>
       )}
 
+      {/* return to room button */}
       {isHost && (
         <Pressable
           onPress={() => {
