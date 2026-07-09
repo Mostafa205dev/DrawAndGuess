@@ -11,7 +11,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 18
-      - run: npm install -g eas-cli
+      - run: npm install -g eas-cli@latest
       - run: npm install
       - name: Build and Submit
         run: eas build --platform android --profile production --non-interactive --auto-submit
