@@ -13,6 +13,8 @@ jobs:
           node-version: 18
       - run: npm install -g eas-cli@latest
       - run: npm install
+      - name: Create Google Service Account file
+        run: echo "${{ secrets.GOOGLE_SERVICE_ACCOUNT_BASE64 }}" | base64 -d > google-service-account.json
       - name: Build and Submit
         run: eas build --platform android --profile production --non-interactive --auto-submit
         env:
