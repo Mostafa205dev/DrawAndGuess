@@ -45,8 +45,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "08ef1103-4859-404a-9697-406450ebd7b6"
+        "projectId": "ea14b845-72ed-4cad-b875-1fe5c9bf2ab7"
       }
-    }
+    },
+    "owner": "mostafatarek1125"
   }
 }

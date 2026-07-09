@@ -7,7 +7,7 @@ export function UserProvider({ children }) {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [onlineFriends, setOnlineFriends] = useState([]);
+  const [Friends, setFriends] = useState([]);
   const [roomInvites, setRoomInvites] = useState([]);
   const socketRef = useRef(null);
 
@@ -35,6 +35,7 @@ export function UserProvider({ children }) {
 
       const data = await response.json();
       setUser(data.data);
+      setFriends(data.data.friends);
     } catch (error) {
       console.error("Error fetching user:", error);
     } finally {
@@ -48,22 +49,21 @@ export function UserProvider({ children }) {
     socketRef.current = null;
     setUser(null);
     setToken(null);
-    setOnlineFriends([]);
+    setFriends([]);
     setRoomInvites([]);
   };
 
-  const fetchOnline = async (currentToken) => {
+  const fetchFriends = async (currentToken) => {
     try {
-      if (!user?.friends?.length) return;
       const res = await fetch(
-        "https://drawandguessbackend.onrender.com/users/onlineFriends",
+        "https://drawandguessbackend.onrender.com/users/Friends",
         { headers: { Authorization: `Bearer ${currentToken || token}` } },
       );
       if (!res.ok) {
         return;
       }
       const data = await res.json();
-      setOnlineFriends(data.data);
+      setFriends(data.data);
     } catch (error) {
       console.error("Error fetching online friends:", error);
     }
@@ -81,9 +81,11 @@ export function UserProvider({ children }) {
     });
     socketRef.current = socket;
 
-    socket.on("refresh", () => fetchUser());
-    socket.on("friendStatusChanged", () => {
-      fetchOnline();
+    socket.on("refreshUser", async () => {
+      await fetchUser();
+    });
+    socket.on("refreshFriends", () => {
+      fetchFriends();
     });
 
     socket.on("roomInviteReceived", (invite) => {
@@ -95,7 +97,7 @@ export function UserProvider({ children }) {
 
   useEffect(() => {
     if (!user?.friends?.length || !token) return;
-    fetchOnline();
+    fetchFriends();
   }, [user?._id, token]);
 
   return (
@@ -108,8 +110,8 @@ export function UserProvider({ children }) {
         isLoading,
         logout,
         socketRef,
-        onlineFriends,
-        fetchOnline,
+        Friends,
+        fetchFriends,
         roomInvites,
         setRoomInvites,
       }}

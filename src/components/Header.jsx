@@ -36,7 +36,7 @@ export default function Header() {
     socketRef,
     roomInvites,
     setRoomInvites,
-    fetchOnline,
+    fetchFriends,
   } = useUser();
   const [notifVisible, setNotifVisible] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
@@ -65,7 +65,7 @@ export default function Header() {
         },
       );
       if (!res.ok) throw new Error("Failed");
-      fetchOnline();
+      fetchFriends();
     } catch (err) {
       console.log(err);
     }
@@ -86,7 +86,12 @@ export default function Header() {
         id,
       });
 
-      fetchUser();
+      setUser((prev) => ({
+        ...prev,
+        friendRequests: prev.friendRequests.filter((req) => req._id !== id),
+      }));
+      setNotifVisible(false);
+      fetchFriends();
     } catch (err) {
       console.log("cant Accept friend");
     }

@@ -1,0 +1,19 @@
+name: EAS Build and Submit
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - run: npm install -g eas-cli
+      - run: npm install
+      - name: Build and Submit
+        run: eas build --platform android --profile production --non-interactive --auto-submit
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}

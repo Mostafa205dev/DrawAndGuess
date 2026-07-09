@@ -32,7 +32,7 @@ export default function HomeScreen() {
   const router = useRouter();
   const [showAddFriend, setShowAddFriend] = useState(false);
   const [searchText, setSearchText] = useState("");
-  const { user, token, socketRef, onlineFriends } = useUser();
+  const { user, token, socketRef, Friends } = useUser();
   const [results, setResults] = useState([]);
   const [roomCode, setRoomCode] = useState("");
   const [showFriendOptions, setShowFriendOptions] = useState(false);
@@ -286,9 +286,7 @@ export default function HomeScreen() {
         <View style={styles.friendsHeader}>
           <View style={styles.friendsHeaderRow}>
             <Text style={styles.joinroomText}>Friends </Text>
-            <Text style={styles.joinroomText}>
-              {onlineFriends.length} online{" "}
-            </Text>
+            <Text style={styles.joinroomText}>{Friends.length}</Text>
           </View>
           <View>
             <Button title="Add" onPress={() => setShowAddFriend(true)} />
@@ -296,7 +294,7 @@ export default function HomeScreen() {
         </View>
 
         <View style={styles.friendsList}>
-          {onlineFriends.map((friend) => (
+          {Friends.map((friend) => (
             <Pressable
               key={friend._id}
               onPress={() => {
@@ -324,7 +322,6 @@ export default function HomeScreen() {
             </Pressable>
           ))}
         </View>
-
       </ScrollView>
 
       {/* add friend modal */}
