@@ -206,7 +206,7 @@ export default function GameScreen() {
       style={{ flex: 1, backgroundColor: "white" }}
       {...(isDrawer && selectedWord ? panResponder.panHandlers : {})}
     >
-      <Text>{isDrawer ? "You are drawing" : "Guess the word"}</Text>
+      <Text>{isDrawer ? ` You are drawing ${selectedWord}` : "Guess the word"}</Text>
 
       {message !== "" && <Text style={styles.userCorrectGuess}>{message}</Text>}
 
@@ -314,6 +314,7 @@ export default function GameScreen() {
           ))}
         </Svg>
       )}
+
 
       {/* return to room button */}
       {isHost && (
