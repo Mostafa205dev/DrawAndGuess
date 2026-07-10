@@ -73,7 +73,7 @@ export default function RoomScreen() {
     });
 
     socket.on("gameStarted", (roomData) => {
-      router.push({
+      router.replace({
         pathname: "/gameScreen",
         params: {
           room: JSON.stringify(roomData),
@@ -111,7 +111,7 @@ export default function RoomScreen() {
         room: data.data,
       });
 
-      router.push("/");
+      router.replace("/");
     } catch (err) {
       console.log("cant leave");
     }

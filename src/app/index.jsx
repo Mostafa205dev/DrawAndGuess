@@ -100,6 +100,10 @@ export default function HomeScreen() {
   };
 
   const handleJoinRoom = async () => {
+    if(roomCode.length !== 6) {
+      alert("Invalid room code. Please enter a Valid 6-character code.");
+      return;
+    }
     try {
       const response = await fetch(
         "https://drawandguessbackend.onrender.com/rooms/joinRoom",
@@ -227,6 +231,7 @@ export default function HomeScreen() {
       });
     } catch (err) {
       console.log(err);
+      alert("Failed to join room. Player not in room");
     }
   };
 

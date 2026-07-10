@@ -169,14 +169,14 @@ export default function GameScreen() {
     });
 
     socket.on("returnedToRoom", (updatedRoom) => {
-      router.push({
+      router.replace({
         pathname: "/room",
         params: { room: JSON.stringify(updatedRoom) },
       });
     });
 
     socket.on("gameEnded", ({ room }) => {
-      router.push({
+      router.replace({
         pathname: "/results",
         params: { room: JSON.stringify(room) },
       });

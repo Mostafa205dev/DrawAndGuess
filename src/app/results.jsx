@@ -12,7 +12,7 @@ export default function ResultsScreen() {
   useEffect(() => {
     const timer = setTimeout(async () => {
       await fetchUser();
-      router.push({
+      router.replace({
         pathname: "/room",
         params: { room: JSON.stringify(room) },
       });
