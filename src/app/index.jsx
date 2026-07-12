@@ -248,19 +248,13 @@ export default function HomeScreen() {
       >
         <View style={styles.talk}>
           <Logo />
-          <Text style={styles.title}>Sketchie</Text>
+          <Text style={styles.title}>Sketchie test</Text>
           <Text style={styles.description}>
             Sketch it. Guess it. Laugh about it.
           </Text>
         </View>
 
-        <View style={styles.talk}>
-          <Logo />
-          <Text style={styles.title}>Sketchie</Text>
-          <Text style={styles.description}>
-            Sketch it. Guess it. Laugh about it.
-          </Text>
-        </View>
+       
 
         <View style={styles.play}>
           <Pressable onPress={() => handleQuickplay()}>
