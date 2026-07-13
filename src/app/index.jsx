@@ -248,7 +248,7 @@ export default function HomeScreen() {
       >
         <View style={styles.talk}>
           <Logo />
-          <Text style={styles.title}>Sketchie test parrallel </Text>
+          <Text style={styles.title}>Sketchie </Text>
           <Text style={styles.description}>
             Sketch it. Guess it. Laugh about it.
           </Text>
