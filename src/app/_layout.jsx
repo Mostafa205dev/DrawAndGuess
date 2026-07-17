@@ -5,6 +5,7 @@ import { StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Header from "../components/Header";
 import { UserProvider, useUser } from "../contexts/UserContext";
+import { SocketProvider } from "../contexts/SocketContext";
 function RootLayoutNav() {
   const { user, isLoading, token } = useUser();
   const router = useRouter();
@@ -94,7 +95,9 @@ function RootLayoutNav() {
 export default function RootLayout() {
   return (
     <UserProvider>
+      <SocketProvider>
       <RootLayoutNav />
+      </SocketProvider>
     </UserProvider>
   );
 }

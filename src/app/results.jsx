@@ -1,13 +1,20 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect } from "react";
-import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { useUser } from "../contexts/UserContext";
 
 export default function ResultsScreen() {
   const params = useLocalSearchParams();
   const room = params.room ? JSON.parse(params.room) : null;
   const router = useRouter();
-  const { fetchUser } = useUser();
+  const { user, fetchUser } = useUser();
 
   useEffect(() => {
     const timer = setTimeout(async () => {
@@ -17,7 +24,6 @@ export default function ResultsScreen() {
         params: { room: JSON.stringify(room) },
       });
     }, 10000);
-
     return () => clearTimeout(timer);
   }, []);
 
@@ -30,6 +36,7 @@ export default function ResultsScreen() {
     }))
     .sort((a, b) => b.score - a.score);
 
+  const isHost = room.host === user._id;
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Results 🏆</Text>
@@ -46,6 +53,19 @@ export default function ResultsScreen() {
           <Text style={styles.score}>{player.score} pts</Text>
         </View>
       ))}
+      {isHost && (
+        <Pressable
+          onPress={() => {
+            router.replace({
+              pathname: "/room",
+              params: { room: JSON.stringify(room) },
+            });
+          }}
+          style={styles.returnButton}
+        >
+          <Text style={styles.returnButtonText}>Return to Room</Text>
+        </Pressable>
+      )}
     </ScrollView>
   );
 }
@@ -91,6 +111,18 @@ const styles = StyleSheet.create({
   },
   score: {
     color: "#22c55e",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  returnButton: {
+    backgroundColor: "#3B82F6",
+    padding: 12,
+    borderRadius: 8,
+    alignItems: "center",
+    marginTop: 20,
+  },
+  returnButtonText: {
+    color: "white",
     fontSize: 16,
     fontWeight: "bold",
   },

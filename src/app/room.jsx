@@ -12,7 +12,7 @@ import {
   Text,
   View,
 } from "react-native";
-import { io } from "socket.io-client";
+import { useSocket } from "../contexts/SocketContext";
 import { useUser } from "../contexts/UserContext";
 const { height, width } = Dimensions.get("window");
 
@@ -28,9 +28,7 @@ export default function RoomScreen() {
     params.room ? JSON.parse(params.room).mode || "normal" : "normal",
   );
   const [isLoading, setIsLoading] = useState(false);
-  const socketRef = useRef(null);
-  if (!room || !user) return null;
-  const isHost = room.host === user._id;
+  const { socketRef } = useSocket();
 
   const roomRef = useRef(room);
 
@@ -39,12 +37,8 @@ export default function RoomScreen() {
   }, [room]);
 
   useEffect(() => {
-    const socket = io("https://drawandguessbackend.onrender.com", {
-      auth: {
-        userId: user._id,
-      },
-    });
-    socketRef.current = socket;
+    const socket = socketRef.current;
+    if (!socket || !room || !user) return;
 
     socket.emit("joinRoom", {
       roomCode: room.code,
@@ -56,39 +50,49 @@ export default function RoomScreen() {
       },
     });
 
-    socket.on("roomUpdated", (updatedRoom) => {
+    const handleRoomUpdated = (updatedRoom) => {
       setRoom(updatedRoom);
-    });
+    };
 
-    socket.on("playerJoined", (newPlayer) => {
+    const handlePlayerJoined = (newPlayer) => {
       setRoom((prev) => {
         if (prev.players.find((p) => p._id === newPlayer._id)) return prev;
         return { ...prev, players: [...prev.players, newPlayer] };
       });
-    });
+    };
 
-    socket.on("playerLeft", ({ leftPlayer, room }) => {
-      if (!room) return;
-      setRoom(room);
-    });
+    const handlePlayerLeft = ({ leftPlayer, room: updatedRoom }) => {
+      if (!updatedRoom) return;
+      setRoom(updatedRoom);
+    };
 
-    socket.on("gameStarted", (roomData) => {
+    const handleGameStarted = (roomData) => {
       router.replace({
         pathname: "/gameScreen",
         params: {
           room: JSON.stringify(roomData),
-          isHost: isHost,
+          isHost: room.host === user._id,
         },
       });
       setIsLoading(false);
-    });
+    };
+
+    socket.on("roomUpdated", handleRoomUpdated);
+    socket.on("playerJoined", handlePlayerJoined);
+    socket.on("playerLeft", handlePlayerLeft);
+    socket.on("gameStarted", handleGameStarted);
 
     return () => {
-      socket.disconnect();
+      socket.off("roomUpdated", handleRoomUpdated);
+      socket.off("playerJoined", handlePlayerJoined);
+      socket.off("playerLeft", handlePlayerLeft);
+      socket.off("gameStarted", handleGameStarted);
     };
-  }, []);
+  }, [room?.code, user?._id]);
 
-  if (!room) return null;
+  if (!room || !user) return null;
+
+  const isHost = room.host === user._id;
 
   const handleLeave = async () => {
     try {

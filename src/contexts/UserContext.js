@@ -1,6 +1,5 @@
 import * as SecureStore from "expo-secure-store";
-import { createContext, useContext, useEffect, useRef, useState } from "react";
-import { io } from "socket.io-client";
+import { createContext, useContext, useEffect, useState } from "react";
 const UserContext = createContext();
 
 export function UserProvider({ children }) {
@@ -9,7 +8,7 @@ export function UserProvider({ children }) {
   const [isLoading, setIsLoading] = useState(true);
   const [Friends, setFriends] = useState([]);
   const [roomInvites, setRoomInvites] = useState([]);
-  const socketRef = useRef(null);
+  
 
   const fetchUser = async () => {
     try {
@@ -45,8 +44,7 @@ export function UserProvider({ children }) {
 
   const logout = async () => {
     await SecureStore.deleteItemAsync("token");
-    socketRef.current?.disconnect();
-    socketRef.current = null;
+    
     setUser(null);
     setToken(null);
     setFriends([]);
@@ -73,27 +71,7 @@ export function UserProvider({ children }) {
     fetchUser();
   }, []);
 
-  useEffect(() => {
-    if (!user) return;
-    socketRef.current?.disconnect();
-    const socket = io("https://drawandguessbackend.onrender.com", {
-      auth: { userId: user._id },
-    });
-    socketRef.current = socket;
 
-    socket.on("refreshUser", async () => {
-      await fetchUser();
-    });
-    socket.on("refreshFriends", () => {
-      fetchFriends();
-    });
-
-    socket.on("roomInviteReceived", (invite) => {
-      setRoomInvites((prev) => [...prev, invite]);
-    });
-
-    return () => socket.disconnect();
-  }, [user?._id]);
 
   useEffect(() => {
     if (!user?.friends?.length || !token) return;
@@ -109,7 +87,7 @@ export function UserProvider({ children }) {
         fetchUser,
         isLoading,
         logout,
-        socketRef,
+        
         Friends,
         fetchFriends,
         roomInvites,

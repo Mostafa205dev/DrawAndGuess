@@ -10,7 +10,7 @@ import {
   View,
 } from "react-native";
 import Svg, { Path } from "react-native-svg";
-import { io } from "socket.io-client";
+import { useSocket } from "../contexts/SocketContext";
 import { useUser } from "../contexts/UserContext";
 
 export default function GameScreen() {
@@ -33,7 +33,7 @@ export default function GameScreen() {
   const [timeLeft, setTimeLeft] = useState(null);
   const [wordChoiceTimeLeft, setWordChoiceTimeLeft] = useState(null);
   const wordChoiceTimerRef = useRef(null);
-  const hasGuessed = room?.guessedPlayers?.includes(user._id);
+  const hasGuessed = room?.guessedPlayers?.includes(user?._id);
   const timerRef = useRef(null);
   const COLORS = [
     "black",
@@ -46,8 +46,8 @@ export default function GameScreen() {
     "white",
   ];
 
-  const isDrawer = room?.currentDrawer === user._id;
-  const socketRef = useRef(null);
+  const isDrawer = room?.currentDrawer === user?._id;
+  const { socketRef } = useSocket();
 
   const panResponder = PanResponder.create({
     onStartShouldSetPanResponder: () => true,
@@ -85,16 +85,12 @@ export default function GameScreen() {
   });
 
   useEffect(() => {
-    const socket = io("https://drawandguessbackend.onrender.com", {
-      auth: {
-        userId: user._id,
-      },
-    });
-    socketRef.current = socket;
+    const socket = socketRef.current;
+    if (!socket || !room || !user) return;
 
     socket.emit("joinGame", { roomCode: room.code });
 
-    socket.on("roomUpdated", (updatedRoom) => {
+    const handleRoomUpdated = (updatedRoom) => {
       setRoom(updatedRoom);
       setSelectedWord(updatedRoom.currentWord);
       setWordChoices(updatedRoom.wordChoices || []);
@@ -102,9 +98,9 @@ export default function GameScreen() {
         clearInterval(wordChoiceTimerRef.current);
         setWordChoiceTimeLeft(null);
       }
-    });
+    };
 
-    socket.on("startTimer", ({ seconds }) => {
+    const handleStartTimer = ({ seconds }) => {
       setTimeLeft(seconds);
       clearInterval(timerRef.current);
       timerRef.current = setInterval(() => {
@@ -116,45 +112,44 @@ export default function GameScreen() {
           return prev - 1;
         });
       }, 1000);
-    });
+    };
 
-    socket.on("loadDrawing", (drawing) => {
+    const handleLoadDrawing = (drawing) => {
       setPaths(drawing);
-    });
+    };
 
-    socket.on("startPath", ({ color }) => {
+    const handleStartPath = ({ color }) => {
       setPaths((prev) => [...prev, { d: "", color }]);
-    });
+    };
 
-    socket.on("drawing", ({ path, color }) => {
+     const handleDrawing = ({ path, color }) => {
       setPaths((prev) => {
         if (prev.length === 0) {
           return [...prev, { d: path, color }];
         }
-
         const updated = [...prev];
         updated[updated.length - 1] = { d: path, color };
         return updated;
       });
-    });
+    };
 
-    socket.on("correctGuess", ({ user }) => {
+    const handleCorrectGuess = ({ user }) => {
       setMessage(`${user.name} guessed correctly!`);
       setTimeLeft(null);
       clearInterval(timerRef.current);
-    });
+    };
 
-    socket.on("newRound", ({ room }) => {
-      setRoom(room);
-      setWordChoices(room.wordChoices || []);
+    const handleNewRound = ({ room: newRoom }) => {
+      setRoom(newRoom);
+      setWordChoices(newRoom.wordChoices || []);
       setPaths([]);
       setSelectedWord(null);
       setMessage("");
       setTimeLeft(null);
       clearInterval(timerRef.current);
-    });
+    };
 
-    socket.on("wordChoiceTimer", ({ seconds }) => {
+    const handleWordChoiceTimer = ({ seconds }) => {
       setWordChoiceTimeLeft(seconds);
       clearInterval(wordChoiceTimerRef.current);
       wordChoiceTimerRef.current = setInterval(() => {
@@ -166,24 +161,51 @@ export default function GameScreen() {
           return prev - 1;
         });
       }, 1000);
-    });
+    };
 
-    socket.on("returnedToRoom", (updatedRoom) => {
+    const handleReturnedToRoom = (updatedRoom) => {
       router.replace({
         pathname: "/room",
         params: { room: JSON.stringify(updatedRoom) },
       });
-    });
+    };
 
-    socket.on("gameEnded", ({ room }) => {
+    const handleGameEnded = ({ room: finalRoom }) => {
       router.replace({
         pathname: "/results",
-        params: { room: JSON.stringify(room) },
+        params: { room: JSON.stringify(finalRoom) },
       });
-    });
+    };
 
-    return () => socket.disconnect();
-  }, []);
+    socket.on("roomUpdated", handleRoomUpdated);
+    socket.on("startTimer", handleStartTimer);
+
+    socket.on("loadDrawing", handleLoadDrawing);
+
+    socket.on("startPath", handleStartPath);
+    socket.on("drawing", handleDrawing);
+    socket.on("correctGuess", handleCorrectGuess);
+    socket.on("newRound", handleNewRound);
+    socket.on("wordChoiceTimer", handleWordChoiceTimer);
+    socket.on("returnedToRoom", handleReturnedToRoom);
+    socket.on("gameEnded", handleGameEnded);
+
+    
+
+    return () => {socket.off("roomUpdated", handleRoomUpdated);
+      socket.off("startTimer", handleStartTimer);
+      socket.off("loadDrawing", handleLoadDrawing);
+      socket.off("startPath", handleStartPath);
+      socket.off("drawing", handleDrawing);
+      socket.off("correctGuess", handleCorrectGuess);
+      socket.off("newRound", handleNewRound);
+      socket.off("wordChoiceTimer", handleWordChoiceTimer);
+      socket.off("returnedToRoom", handleReturnedToRoom);
+      socket.off("gameEnded", handleGameEnded);
+      clearInterval(timerRef.current);
+      clearInterval(wordChoiceTimerRef.current);
+    }
+  }, [room?.code, user?._id]);
 
   const handleGuess = () => {
     if (hasGuessed) return;
@@ -206,7 +228,10 @@ export default function GameScreen() {
       style={{ flex: 1, backgroundColor: "white" }}
       {...(isDrawer && selectedWord ? panResponder.panHandlers : {})}
     >
-      <Text>{isDrawer ? ` You are drawing ${selectedWord}` : "Guess the word"}</Text>
+      <Text>
+        {isDrawer ? ` You are drawing ${selectedWord}` : "Guess the word"}
+      </Text>
+      <Text>mode: {room.mode}</Text>
 
       {message !== "" && <Text style={styles.userCorrectGuess}>{message}</Text>}
 
@@ -315,7 +340,6 @@ export default function GameScreen() {
         </Svg>
       )}
 
-
       {/* return to room button */}
       {isHost && (
         <Pressable
@@ -325,7 +349,7 @@ export default function GameScreen() {
           style={{
             position: "absolute",
             top: 20,
-            left: 20,
+            right: 20,
           }}
         >
           <Text style={{ color: "blue", fontSize: 18 }}>Return to Room</Text>
