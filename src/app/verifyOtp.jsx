@@ -1,53 +1,144 @@
-import { useRouter, useLocalSearchParams } from "expo-router";
+import { useRouter } from "expo-router";
+import LottieView from "lottie-react-native";
 import { useState } from "react";
-import { View, Text, TextInput, Button, StyleSheet } from "react-native";
-import * as SecureStore from "expo-secure-store";
+import {
+  Button,
+  Dimensions,
+  ImageBackground,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
-export default function VerifyOtp() {
-  const [otp, setOtp] = useState("");
-  const { phone } = useLocalSearchParams();
+const { width, height } = Dimensions.get("window");
+
+export default function VerifyOTP() {
   const router = useRouter();
+
+  const [otp, setOtp] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleVerify = async () => {
     try {
-      const response = await fetch(
-        "https://drawandguessbackend.onrender.com/users/verifyOtp",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ phone, otp }),
-        }
-      );
+      setLoading(true);
 
-      const data = await response.json();
+      // Verify OTP API
 
-      if (data.status === "success") {
-        await SecureStore.setItemAsync("token", data.data.token);
-        router.push("/");
-      } else {
-        console.error(data.msg);
-      }
+      router.replace("/resetPassword");
     } catch (err) {
-      console.error("fail to fetch", err);
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
+  const handleResend = async () => {
+    // Resend OTP API
+  };
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <LottieView
+          source={require("../../assets/images/loading.json")}
+          autoPlay
+          loop
+          style={styles.loadingAnimation}
+        />
+        <Text>Verifying...</Text>
+      </View>
+    );
+  }
+
   return (
-    <View style={styles.container}>
-      <Text>Enter OTP sent to {phone}</Text>
-      <TextInput
-        placeholder="OTP"
-        value={otp}
-        onChangeText={setOtp}
-        keyboardType="number-pad"
-        style={styles.input}
-      />
-      <Button title="Verify" onPress={handleVerify} />
-    </View>
+    <ImageBackground
+      source={require("../../assets/images/background.png")}
+      style={styles.body}
+      resizeMode="cover"
+    >
+      <View style={styles.container}>
+        <Text style={styles.title}>Verification Code</Text>
+
+        <Text style={styles.description}>
+          Enter the 6-digit code sent to your email.
+        </Text>
+
+        <TextInput
+          placeholder="123456"
+          value={otp}
+          onChangeText={setOtp}
+          keyboardType="number-pad"
+          maxLength={6}
+          style={styles.input}
+        />
+
+        <Button title="Verify" onPress={handleVerify} />
+
+        <TouchableOpacity onPress={handleResend}>
+          <Text style={styles.resend}>Resend Code</Text>
+        </TouchableOpacity>
+      </View>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: "center", padding: 20, gap: 8 },
-  input: { borderWidth: 1, borderColor: "#ccc", borderRadius: 8, padding: 8 },
+  body: {
+    flex: 1,
+    width,
+    height,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+
+  container: {
+    width: width * 0.75,
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 20,
+    gap: 12,
+  },
+
+  title: {
+    fontSize: 22,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+
+  description: {
+    textAlign: "center",
+    color: "gray",
+    marginBottom: 10,
+  },
+
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    padding: 12,
+    textAlign: "center",
+    fontSize: 24,
+    letterSpacing: 8,
+  },
+
+  resend: {
+    textAlign: "center",
+    color: "#007AFF",
+    marginTop: 10,
+  },
+
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "white",
+  },
+
+  loadingAnimation: {
+    width: 200,
+    height: 200,
+  },
 });

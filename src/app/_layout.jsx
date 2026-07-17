@@ -10,7 +10,7 @@ function RootLayoutNav() {
   const { user, isLoading, token } = useUser();
   const router = useRouter();
   const pathname = usePathname();
-  const hideHeader = pathname === "/signIn" || pathname === "/gameScreen" || pathname === "/results" || pathname === "/room" || pathname === "/about";
+  const hideHeader = pathname === "/signIn" || pathname === "/gameScreen" || pathname === "/results" || pathname === "/room" || pathname === "/about" || pathname === "/signUp" || pathname === "/verifyOtp"; 
   const checkCurrentRoom = async () => {
     try {
       const response = await fetch(

@@ -9,6 +9,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { useUser } from "../contexts/UserContext";
@@ -16,8 +17,9 @@ import { useUser } from "../contexts/UserContext";
 const { width, height } = Dimensions.get("window");
 
 export default function SignIn() {
-  const [name, setname] = useState("");
-  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
   const router = useRouter();
   const { fetchUser } = useUser();
   const [loading, setLoading] = useState(false);
@@ -25,25 +27,40 @@ export default function SignIn() {
   const handleSignIn = async () => {
     try {
       setLoading(true);
+
       const response = await fetch(
         "https://drawandguessbackend.onrender.com/users/signIn",
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, phone }),
-        },
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email,
+            password,
+          }),
+        }
       );
 
       const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.message);
+        return;
+      }
+
       await SecureStore.setItemAsync("token", data.data.token);
       await fetchUser();
-      router.push("/");
+
+      router.replace("/");
     } catch (err) {
-      console.error("fail to fetch", err);
+      console.error(err);
+      alert("Something went wrong");
     } finally {
       setLoading(false);
     }
   };
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -57,6 +74,7 @@ export default function SignIn() {
       </View>
     );
   }
+
   return (
     <ImageBackground
       source={require("../../assets/images/background.png")}
@@ -64,22 +82,37 @@ export default function SignIn() {
       resizeMode="cover"
     >
       <View style={styles.container}>
-        <Text>Username</Text>
+        <Text>Email</Text>
         <TextInput
-          placeholder="enter username"
-          value={name}
-          onChangeText={setname}
+          placeholder="Enter your email"
+          value={email}
+          onChangeText={setEmail}
+          autoCapitalize="none"
+          keyboardType="email-address"
           style={styles.input}
         />
-        <Text>phone</Text>
+
+        <Text>Password</Text>
         <TextInput
-          placeholder="enter phone"
-          value={phone}
-          onChangeText={setPhone}
-          keyboardType="phone-pad"
+          placeholder="Enter your password"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
           style={styles.input}
         />
-        <Button title="Continue" onPress={handleSignIn} />
+
+        <TouchableOpacity onPress={() => router.push("/verifyOtp")}>
+          <Text style={styles.forgotPassword}>Forgot Password?</Text>
+        </TouchableOpacity>
+
+        <Button title="Sign In" onPress={handleSignIn} />
+
+        <TouchableOpacity onPress={() => router.push("/signUp")}>
+          <Text>Don't have an account? </Text>
+          <Text style={styles.signUp}>
+            Sign Up
+          </Text>
+        </TouchableOpacity>
       </View>
     </ImageBackground>
   );
@@ -88,26 +121,40 @@ export default function SignIn() {
 const styles = StyleSheet.create({
   body: {
     flex: 1,
-    width: width,
-    height: height,
+    width,
+    height,
     padding: 20,
     justifyContent: "center",
     alignItems: "center",
   },
+
   container: {
     padding: 20,
     backgroundColor: "white",
-    borderWidth: 1,
     borderRadius: 20,
-    width: width * (7 / 10),
-    gap: 8,
+    width: width * 0.75,
+    gap: 10,
   },
+
   input: {
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 8,
-    padding: 8,
+    padding: 10,
   },
+
+  forgotPassword: {
+    alignSelf: "flex-end",
+    color: "#007AFF",
+    marginBottom: 10,
+  },
+
+  signUp: {
+    marginTop: 15,
+    textAlign: "center",
+    color: "#007AFF",
+  },
+
   loadingContainer: {
     flex: 1,
     justifyContent: "center",
