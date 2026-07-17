@@ -1,4 +1,5 @@
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import * as SecureStore from "expo-secure-store";
 import LottieView from "lottie-react-native";
 import { useState } from "react";
 import {
@@ -11,24 +12,49 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useUser } from "../contexts/UserContext";
 
 const { width, height } = Dimensions.get("window");
 
 export default function VerifyOTP() {
   const router = useRouter();
-
+  const { email } = useLocalSearchParams();
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
-
+  const { fetchUser } = useUser();
   const handleVerify = async () => {
     try {
       setLoading(true);
 
-      // Verify OTP API
+      const response = await fetch(
+        "https://drawandguessbackend.onrender.com/users/verifyOtp",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email,
+            otp,
+          }),
+        },
+      );
 
-      router.replace("/resetPassword");
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.message);
+        return;
+      }
+
+      await SecureStore.setItemAsync("token", data.data.token);
+
+      await fetchUser();
+
+      router.replace("/");
     } catch (err) {
       console.error(err);
+      alert("Something went wrong");
     } finally {
       setLoading(false);
     }

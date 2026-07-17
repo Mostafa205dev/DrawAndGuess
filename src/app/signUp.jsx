@@ -29,6 +29,8 @@ export default function SignUp() {
     try {
       setLoading(true);
 
+      console.log("1 - before fetch");
+
       const response = await fetch(
         "https://drawandguessbackend.onrender.com/users/signUp",
         {
@@ -44,22 +46,74 @@ export default function SignUp() {
         },
       );
 
+      console.log("2 - response received", response.status);
+
       const data = await response.json();
+
+      console.log("3 - data", data);
 
       if (!response.ok) {
         alert(data.message);
         return;
       }
 
-      alert("Account created successfully!");
-      router.replace("/signIn");
+      console.log("4 - navigating");
+
+      router.replace({
+        pathname: "/verifyOtp",
+        params: {
+          email,
+        },
+      });
     } catch (err) {
-      console.error(err);
+      console.error("ERROR:", err);
       alert("Something went wrong");
     } finally {
+      console.log("5 - finally");
       setLoading(false);
     }
   };
+
+  // const handleSignUp = async () => {
+  //   try {
+  //     setLoading(true);
+
+  //     const response = await fetch(
+  //       "https://drawandguessbackend.onrender.com/users/signUp",
+  //       {
+  //         method: "POST",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //         body: JSON.stringify({
+  //           name: username,
+  //           email,
+  //           password,
+  //         }),
+  //       },
+  //     );
+
+  //     const data = await response.json();
+
+  //     if (!response.ok) {
+  //       alert(data.message);
+  //       return;
+  //     }
+
+  //     router.replace({
+  //       pathname: "/verifyOtp",
+  //       params: {
+  //         email,
+  //       },
+  //     });
+
+  //   } catch (err) {
+  //     console.error(err);
+  //     alert("Something went wrong");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   if (loading) {
     return (
