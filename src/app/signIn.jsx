@@ -13,6 +13,7 @@ import {
   View,
 } from "react-native";
 import { useUser } from "../contexts/UserContext";
+import GoogleAuthButton from "../components/GoogleAuthButton";
 
 const { width, height } = Dimensions.get("window");
 
@@ -114,6 +115,7 @@ export default function SignIn() {
           </Text>
         </TouchableOpacity>
       </View>
+      <GoogleAuthButton />
     </ImageBackground>
   );
 }

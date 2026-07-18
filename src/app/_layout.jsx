@@ -1,16 +1,24 @@
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { Stack, usePathname, useRouter } from "expo-router";
 import LottieView from "lottie-react-native";
 import { useEffect } from "react";
 import { StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Header from "../components/Header";
-import { UserProvider, useUser } from "../contexts/UserContext";
 import { SocketProvider } from "../contexts/SocketContext";
+import { UserProvider, useUser } from "../contexts/UserContext";
 function RootLayoutNav() {
   const { user, isLoading, token } = useUser();
   const router = useRouter();
   const pathname = usePathname();
-  const hideHeader = pathname === "/signIn" || pathname === "/gameScreen" || pathname === "/results" || pathname === "/room" || pathname === "/about" || pathname === "/signUp" || pathname === "/verifyOtp"; 
+  const hideHeader =
+    pathname === "/signIn" ||
+    pathname === "/gameScreen" ||
+    pathname === "/results" ||
+    pathname === "/room" ||
+    pathname === "/about" ||
+    pathname === "/signUp" ||
+    pathname === "/verifyOtp";
   const checkCurrentRoom = async () => {
     try {
       const response = await fetch(
@@ -72,6 +80,12 @@ function RootLayoutNav() {
     );
   }
 
+  GoogleSignin.configure({
+    webClientId:
+      "1057462092840-iipv03f9fi8mh3hr7uvrchfe9mhb3bmd.apps.googleusercontent.com",
+    offlineAccess: false,
+  });
+
   return (
     <SafeAreaView style={styles.root}>
       {!hideHeader && <Header />}
@@ -96,7 +110,7 @@ export default function RootLayout() {
   return (
     <UserProvider>
       <SocketProvider>
-      <RootLayoutNav />
+        <RootLayoutNav />
       </SocketProvider>
     </UserProvider>
   );

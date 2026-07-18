@@ -12,7 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-
+import GoogleAuthButton from "../components/GoogleAuthButton";
 const { width, height } = Dimensions.get("window");
 
 export default function SignUp() {
@@ -21,7 +21,6 @@ export default function SignUp() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(true);
   const [loading, setLoading] = useState(false);
 
@@ -74,46 +73,7 @@ export default function SignUp() {
     }
   };
 
-  // const handleSignUp = async () => {
-  //   try {
-  //     setLoading(true);
-
-  //     const response = await fetch(
-  //       "https://drawandguessbackend.onrender.com/users/signUp",
-  //       {
-  //         method: "POST",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //         },
-  //         body: JSON.stringify({
-  //           name: username,
-  //           email,
-  //           password,
-  //         }),
-  //       },
-  //     );
-
-  //     const data = await response.json();
-
-  //     if (!response.ok) {
-  //       alert(data.message);
-  //       return;
-  //     }
-
-  //     router.replace({
-  //       pathname: "/verifyOtp",
-  //       params: {
-  //         email,
-  //       },
-  //     });
-
-  //   } catch (err) {
-  //     console.error(err);
-  //     alert("Something went wrong");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+  
 
   if (loading) {
     return (
@@ -177,6 +137,7 @@ export default function SignUp() {
           <Text style={styles.signIn}>Already have an account? Sign In</Text>
         </TouchableOpacity>
       </View>
+      <GoogleAuthButton />
     </ImageBackground>
   );
 }
