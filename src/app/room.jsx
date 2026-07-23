@@ -97,7 +97,7 @@ export default function RoomScreen() {
   const handleLeave = async () => {
     try {
       const response = await fetch(
-        `${process.env.EXPO_PUBLIC_API_URL}/rooms/leaveRoom/${room.code}`,
+        `${process.env.EXPO_PUBLIC_API_URL}/rooms/leaveRoom`,
         {
           method: "DELETE",
           headers: {
