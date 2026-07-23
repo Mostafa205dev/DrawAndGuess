@@ -97,7 +97,7 @@ export default function RoomScreen() {
   const handleLeave = async () => {
     try {
       const response = await fetch(
-        "https://drawandguessbackend.onrender.com/rooms/leaveRoom",
+        `${process.env.EXPO_PUBLIC_API_URL}/rooms/leaveRoom/${room.code}`,
         {
           method: "DELETE",
           headers: {

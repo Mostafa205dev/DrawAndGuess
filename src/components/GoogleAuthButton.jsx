@@ -25,7 +25,7 @@ export default function GoogleAuthButton() {
       }
 
       const response = await fetch(
-        "https://drawandguessbackend.onrender.com/users/googleAuth",
+        `${process.env.EXPO_PUBLIC_API_URL}/users/googleAuth`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

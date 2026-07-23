@@ -15,6 +15,7 @@ import {
 import { useUser } from "../contexts/UserContext";
 import GoogleAuthButton from "../components/GoogleAuthButton";
 
+
 const { width, height } = Dimensions.get("window");
 
 export default function SignIn() {
@@ -30,7 +31,7 @@ export default function SignIn() {
       setLoading(true);
 
       const response = await fetch(
-        "https://drawandguessbackend.onrender.com/users/signIn",
+        `${process.env.EXPO_PUBLIC_API_URL}/users/signIn`,
         {
           method: "POST",
           headers: {

@@ -22,7 +22,7 @@ function RootLayoutNav() {
   const checkCurrentRoom = async () => {
     try {
       const response = await fetch(
-        "https://drawandguessbackend.onrender.com/rooms/myRoom",
+        `${process.env.EXPO_PUBLIC_API_URL}/rooms/myRoom`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

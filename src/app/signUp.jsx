@@ -31,7 +31,7 @@ export default function SignUp() {
       console.log("1 - before fetch");
 
       const response = await fetch(
-        "https://drawandguessbackend.onrender.com/users/signUp",
+        `${process.env.EXPO_PUBLIC_API_URL}/users/signUp`,
         {
           method: "POST",
           headers: {

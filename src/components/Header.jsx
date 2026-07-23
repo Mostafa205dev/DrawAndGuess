@@ -54,7 +54,7 @@ export default function Header() {
       }));
 
       const res = await fetch(
-        "https://drawandguessbackend.onrender.com/users/avatar",
+        `${process.env.EXPO_PUBLIC_API_URL}/users/avatar`,
         {
           method: "PATCH",
           headers: {
@@ -74,7 +74,7 @@ export default function Header() {
   const HandleAccept = async (id) => {
     try {
       const response = await fetch(
-        `https://drawandguessbackend.onrender.com/users/AcceptFriendRequest/${id}`,
+        `${process.env.EXPO_PUBLIC_API_URL}/users/AcceptFriendRequest/${id}`,
         {
           method: "POST",
           headers: { Authorization: `Bearer ${token}` },
@@ -104,7 +104,7 @@ export default function Header() {
         friendRequests: prev.friendRequests.filter((req) => req._id !== id),
       }));
       const response = await fetch(
-        `https://drawandguessbackend.onrender.com/users/DeleteFriendRequest/${id}`,
+        `${process.env.EXPO_PUBLIC_API_URL}/users/DeleteFriendRequest/${id}`,
         {
           method: "Delete",
           headers: { Authorization: `Bearer ${token}` },
@@ -118,7 +118,7 @@ export default function Header() {
   const acceptInvite = async (invite) => {
     try {
       const response = await fetch(
-        "https://drawandguessbackend.onrender.com/rooms/joinRoom",
+        `${process.env.EXPO_PUBLIC_API_URL}/rooms/joinRoom`,
         {
           method: "POST",
           headers: {

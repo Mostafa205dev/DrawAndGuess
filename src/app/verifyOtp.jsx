@@ -27,7 +27,7 @@ export default function VerifyOTP() {
       setLoading(true);
 
       const response = await fetch(
-        "https://drawandguessbackend.onrender.com/users/verifyOtp",
+        `${process.env.EXPO_PUBLIC_API_URL}/users/verifyOtp`,
         {
           method: "POST",
           headers: {

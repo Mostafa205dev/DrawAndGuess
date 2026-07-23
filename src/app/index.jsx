@@ -43,7 +43,7 @@ export default function HomeScreen() {
     if (text.length === 0) return setResults([]);
 
     const response = await fetch(
-      "https://drawandguessbackend.onrender.com/users",
+      `${process.env.EXPO_PUBLIC_API_URL}/users/searchUsers`,
     );
     const data = await response.json();
 
@@ -59,7 +59,7 @@ export default function HomeScreen() {
   const SentFriendReq = async (id) => {
     try {
       const response = await fetch(
-        `https://drawandguessbackend.onrender.com/users/friendRequest/${id}`,
+        `${process.env.EXPO_PUBLIC_API_URL}/users/friendRequest/${id}`,
         {
           method: "POST",
           headers: { Authorization: `Bearer ${token}` },
@@ -78,7 +78,7 @@ export default function HomeScreen() {
   const handleCreateRoom = async () => {
     try {
       const response = await fetch(
-        "https://drawandguessbackend.onrender.com/rooms/createRoom",
+        `${process.env.EXPO_PUBLIC_API_URL}/rooms/createRoom`,
         {
           method: "POST",
           headers: {
@@ -106,7 +106,7 @@ export default function HomeScreen() {
     }
     try {
       const response = await fetch(
-        "https://drawandguessbackend.onrender.com/rooms/joinRoom",
+        `${process.env.EXPO_PUBLIC_API_URL}/rooms/joinRoom`,
         {
           method: "POST",
           headers: {
@@ -130,7 +130,7 @@ export default function HomeScreen() {
   const handleQuickplay = async () => {
     try {
       const response = await fetch(
-        "https://drawandguessbackend.onrender.com/rooms/quickPlay",
+        `${process.env.EXPO_PUBLIC_API_URL}/rooms/quickPlay`,
         {
           method: "POST",
           headers: {
@@ -160,7 +160,7 @@ export default function HomeScreen() {
 
   const sentPrivateRoomInvite = async (friendId) => {
     const response = await fetch(
-      "https://drawandguessbackend.onrender.com/rooms/createRoom",
+      `${process.env.EXPO_PUBLIC_API_URL}/rooms/createRoom`,
       {
         method: "POST",
         headers: {
@@ -186,7 +186,7 @@ export default function HomeScreen() {
 
   const sentPublicRoomInvite = async (friendId) => {
     const response = await fetch(
-      "https://drawandguessbackend.onrender.com/rooms/createRoom",
+      `${process.env.EXPO_PUBLIC_API_URL}/rooms/createRoom`,
       {
         method: "POST",
         headers: {
@@ -213,7 +213,7 @@ export default function HomeScreen() {
   const joinRoom = async (friendId) => {
     try {
       const response = await fetch(
-        "https://drawandguessbackend.onrender.com/rooms/joinFriendRoom",
+        `${process.env.EXPO_PUBLIC_API_URL}/rooms/joinFriendRoom`,
         {
           method: "POST",
           headers: {
